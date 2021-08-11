@@ -25,4 +25,5 @@ const styles = StyleSheet.create({
     backgroundColor:'#212121',
   },
   //start your style below...
+  //Lim Kai Zhe
 });
