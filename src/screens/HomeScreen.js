@@ -12,7 +12,7 @@ export default class HomeScreen extends Component<Props>{
       <View style={styles.container}>
         <AppHeader></AppHeader>
         <ScrollView>
-
+        <Text>HomeScreen</Text>
 
         </ScrollView>
       </View>
