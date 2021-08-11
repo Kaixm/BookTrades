@@ -1,6 +1,7 @@
 ```
 updated on 06/08
 v1.0  LSW  template
+v1.1  LSW  new template (dark theme)
 ```
 
 # BookTrades (BTs)
@@ -24,7 +25,7 @@ BookTrades is a Wireless Application Development assignment project which is goi
     
 5.  Add a reference(remote) to the original repository.
     ```
-    git remote add upstream https://github.com/LSW/BookTrades.git 
+    git remote add upstream https://github.com/LeeSiangWei/BookTrades.git 
     ```
     
 6.  Check the remotes for this repository.
