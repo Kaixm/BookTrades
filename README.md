@@ -1,7 +1,7 @@
 ```
 updated on 06/08
 v1.0  LSW  template
-v1.1  LSW  new template (dark theme)
+v1.2  LSW  new template (dark theme)
 ```
 
 # BookTrades (BTs)
