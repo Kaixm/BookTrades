@@ -93,15 +93,7 @@ LJE:  Chat
 
 
 # Color Template
-![Color Hunt Palette (2)](https://user-images.githubusercontent.com/85919881/127949745-94cf267c-5c0e-4fa3-98f2-38fd6af0cff5.png)
 
-Please use these color code while designing for more consistent:
-1.  ```#FF9292```
-2.  ```#FFB4B4```
-3.  ```#FFDCDC```
-4.  ```#FFE8E8```
-
-For more information please visit this link https://colorhunt.co/palette/ff9292ffb4b4ffdcdcffe8e8
 
 
 # More Information?
