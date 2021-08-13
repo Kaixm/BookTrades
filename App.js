@@ -16,7 +16,7 @@ import RepositoryScreen from './src/screens/RepositoryScreen';
 import TradeScreen from './src/screens/TradeScreen';
 import TradeDetailsScreen from './src/screens/TradeDetailsScreen';
 import BookDetailsScreen from './src/screens/BookDetailsScreen';
-import ReviewScreen from './src/screens/ReviewScreen';
+import StartTradeScreen from './src/screens/StartTradeScreen';
 
 const RepositoryStack=createStackNavigator(
   {
@@ -34,7 +34,8 @@ const TradeStack=createStackNavigator(
     Trade: TradeScreen,
     TradeDetails: TradeDetailsScreen,
     BookDetails: BookDetailsScreen,
-    Review: ReviewScreen,
+    
+    StartTrade: StartTradeScreen,
   },
   {
     headerMode:'none',
@@ -45,6 +46,8 @@ const TradeStack=createStackNavigator(
 const HomeStack=createStackNavigator(
   {
     Home: HomeScreen,
+    BookDetails: BookDetailsScreen,
+    StartTrade: StartTradeScreen,
     //add additional screens here
   },
   {

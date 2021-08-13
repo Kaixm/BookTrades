@@ -8,11 +8,12 @@ export default class TradeContainer extends Component<Props>{
   constructor(props){
     super(props);
     this.state={
+      id:this.props.id?this.props.id:"",
       gender:this.props.gender?this.props.gender:"",
       name:this.props.name?this.props.name:"",
       date:this.props.date?this.props.date:"",
       status:this.props.status?this.props.status:"",
-      statusColor:this.props.status?(this.props.status=="Completed"?'#4CBB17':'#B80F0A'):'#FAFAFA',
+      statusColor:this.props.status?(this.props.status=="Done"?'#4CBB17':(this.props.status=="Exchanging"?'#FCE205':'#B80F0A')):'#FAFAFA',
     }
   }
 
