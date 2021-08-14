@@ -17,11 +17,16 @@ import TradeScreen from './src/screens/TradeScreen';
 import TradeDetailsScreen from './src/screens/TradeDetailsScreen';
 import BookDetailsScreen from './src/screens/BookDetailsScreen';
 import StartTradeScreen from './src/screens/StartTradeScreen';
+import RepoBookDetailsScreen from './src/screens/RepoBookDetailsScreen';
+import EditBookScreen from './src/screens/EditBookScreen';
+import AddBookScreen from './src/screens/AddBookScreen';
 
 const RepositoryStack=createStackNavigator(
   {
     Repository: RepositoryScreen,
-    //add additional screens here
+    RepoBookDetails: RepoBookDetailsScreen,
+    EditBook: EditBookScreen,
+    AddBook: AddBookScreen,
   },
   {
     headerMode:'none',
