@@ -21,7 +21,6 @@ export default class BookDetailsScreen extends Component<Props>{
   }
 
   render(){
-    console.log(this.state.fromScreen)
     return(
       <View style={styles.container}>
         <AppHeader thisProps={this.props}></AppHeader>

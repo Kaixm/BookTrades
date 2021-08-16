@@ -37,7 +37,6 @@ export default class StartTradeScreen extends Component<Props>{
                       selected:[...this.state.selected],
                       selectedNumber:[...this.state.selected].length
                     })
-                    console.log(this.state.selectedNumber)
                     //add to selected
                   }}  
               >

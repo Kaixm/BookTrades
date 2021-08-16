@@ -17,7 +17,6 @@ export default class BookContainer extends Component<Props>{
   }
 
   render(){
-    console.log(this.state.fromScreen)
     return (
       <TouchableHighlight style={styles.bookContainer}
         underlayColor={'#424242'}
