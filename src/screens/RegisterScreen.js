@@ -1,67 +1,72 @@
 import React,{Component} from "react";
-import { Text, StyleSheet, View, TouchableOpacity, TextInput, ScrollView } from "react-native";
+import { Text, StyleSheet, View, TouchableOpacity, TextInput, ScrollView, Picker } from "react-native";
 
 //import components
 import AppHeader from "../components/AppHeader";
 
 export default class RegisterScreen extends Component<Props>{
+  constructor(props){
+    super(props);
+    this.state={
+      name:'',
+      email:'',
+      phoneNumber:'',
+      gender:'Male',
+      password:''
+    }
+  }
+
   render(){
     return(
       //template only, please remove when proceed to your code
       <View style={styles.container}>
       <AppHeader thisProps={this.props}></AppHeader>
-      <ScrollView>
-        <Text style={styles.text}>Registration</Text>
-        <View style={styles.actions}>
+      <View style={styles.form}>
+        <Text style={styles.title}>Fill in your information below:</Text>
         <TextInput style = {styles.input}
           underlineColorAndroid = "transparent"
-          placeholder = "Enter your name..."
+          placeholder = "Name"
           placeholderTextColor = "#616161"
           autoCapitalize = "none"
-          onChangeText = {this.handleEmail}
+          onChangeText = {(name)=>this.setState({name:name})}
         />
         <TextInput style = {styles.input}
           underlineColorAndroid = "transparent"
-          placeholder = "Enter your email..."
+          placeholder = "Email"
           placeholderTextColor = "#616161"
           autoCapitalize = "none"
-          onChangeText = {this.handleEmail}
+          onChangeText = {(email)=>this.setState({email:email})}
         />
         <TextInput style = {styles.input}
           underlineColorAndroid = "transparent"
-          placeholder = "Enter your gender..."
+          placeholder = "Phone Number"
           placeholderTextColor = "#616161"
           autoCapitalize = "none"
-          onChangeText = {this.handleEmail}
+          onChangeText = {(phoneNumber)=>this.setState({phoneNumber:phoneNumber})}
         />
-        <TextInput style = {styles.input}
-          underlineColorAndroid = "transparent"
-          placeholder = "Enter your phone number..."
-          placeholderTextColor = "#616161"
-          autoCapitalize = "none"
-          onChangeText = {this.handleEmail}
-        />
-        <TextInput style = {styles.input}
-          underlineColorAndroid = "transparent"
-          placeholder = "Enter your password..."
-          placeholderTextColor = "#616161"
-          autoCapitalize = "none"
-          onChangeText = {this.handleEmail}
-        />
-        <TextInput style = {styles.input}
-          underlineColorAndroid = "transparent"
-          placeholder = "Re-enter your password..."
-          placeholderTextColor = "#616161"
-          autoCapitalize = "none"
-          onChangeText = {this.handleEmail}
-        />
+        <View style={{borderBottomWidth:2,borderBottomColor:"#AC94F4",margin:2,width:'80%'}}>
+        <Picker
+          selectedValue={this.state.gender}
+          style={{color:"#FAFAFA",fontFamily:'Raleway-Regular',fontSize:18}}
+          onValueChange = {(gender)=>this.setState({gender:gender})}
+        >
+          <Picker.Item label={'Male'} value={'Male'} />
+          <Picker.Item label={'Female'} value={'Female'} />
+        </Picker>
         </View>
+        <TextInput style = {styles.input}
+          underlineColorAndroid = "transparent"
+          placeholder = "Password"
+          placeholderTextColor = "#616161"
+          autoCapitalize = "none"
+          onChangeText = {this.handlePassword}
+        />
         <TouchableOpacity 
-        style={styles.green}
+        style={styles.register}
         onPress={()=>this.props.navigation.navigate('Login')}
         >
-        <Text style={styles.actionText}>Login</Text></TouchableOpacity>
-        </ScrollView>
+        <Text style={styles.registerText}>Register</Text></TouchableOpacity>
+        </View>
       </View>
     );
   }
@@ -70,50 +75,47 @@ export default class RegisterScreen extends Component<Props>{
 const styles = StyleSheet.create({
   container:{
     flex:1,
-    flexDirection:'column',
     backgroundColor:'#212121',
   },
-  text:{
-    fontSize: 40 ,
+  title:{
+    fontSize: 18 ,
     fontFamily:'Quicksand-Bold',
-    color:"#AC94F4",
-    marginTop: 10,
-    marginBottom: 10,
+    color:"#FAFAFA",
     padding:10,
+    textAlign:'center'
   },
-  actions:{
-    flexDirection: "column",
-    justifyContent: 'space-between',
-    padding:10,
+  form:{
+    flex:0.9,
+    width:'100%',
+    alignItems:'center',
+    justifyContent:'center',
   },
   input:{
-    backgroundColor: "#FAFAFA",
+    marginTop:5,
+    marginBottom:5,
+    color:"#FFFAF0",
     fontSize: 18,
-    marginBottom: 10,
-    marginTop: 10,
-    color:"#FAFAFA",
-    width: '90%',
-    height: 60,
-    shadowColor: 'black',
-    shadowOpacity: .2,
-    shadowOffset: {
-      height:2,
-      width:-2
-    },
-    elevation:4,
+    shadowColor: "#FFFAF0",
+    borderBottomWidth:2,
+    borderColor:"#AC94F4",
     borderRadius:5,
+    padding:10,
+    width:'80%',
   },
-  green:{
-    backgroundColor:'#4CBB17',
+  register:{
+    width:'70%',
+    backgroundColor:"#AC94F4",
     borderRadius:5,
+    borderWidth:2,
+    borderColor:'#AC94F4',
     alignItems:'center',
-    padding:15,
-    marginTop: 15,
-    marginBottom: 10,
-    marginLeft: 10,
-    width: '40%',
+    padding:5,
+    marginTop:50
   },
-  actionText:{
-    color: "#FAFAFA",
-  }
+  registerText:{
+    fontFamily:'Raleway-Bold',
+    fontSize:18,
+    color:'#FAFAFA',
+    alignItems: 'center',
+  },
 });

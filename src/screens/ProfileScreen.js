@@ -1,165 +1,275 @@
 import React,{Component} from "react";
-import { Text, StyleSheet, Image, View, ScrollView, TouchableOpacity, FlatList, TouchableHighlight, Alert, SectionList, Modal } from "react-native";
+import { Text, StyleSheet, Image, View, ScrollView, TouchableOpacity, FlatList, TouchableHighlight, Alert, Modal, TextInput } from "react-native";
 import { StackActions,NavigationActions } from "react-navigation";
-
-//import components
-import AppHeader from "../components/AppHeader";
 
 //import icons
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+
+//import components
+import AppHeader from "../components/AppHeader";
+import BookContainer from "../components/BookContainer";
 
 //prevent LOGIN back to PROFILE once back button pressed
 const resetAction = StackActions.reset({
   index: 0,
   actions: [NavigationActions.navigate({ routeName: 'Login' })],
 });
-//test data
-const tradeData=[
+
+//testData
+const testData=[
   {
-    id:"1",
-    gender: "Male",
-    email: "kaizhe00@gmail.com",
-    phonenum: "0123456789",
-    rate: "5",
+    id:'1',
+    name:'Book 1'
   },
-];
+  {
+    id:'2',
+    name:'Book 2'
+  },
+]
 
 export default class ProfileScreen extends Component<Props>{
+  constructor(props){
+    super(props);
+    this.state={
+      id:'',
 
+      logoutBoxVisible:false,
+    }
+  }
 
   render(){
     return(
       <View style={styles.container}>
         <AppHeader thisProps={this.props}></AppHeader>
-        <View style={styles.headerContent}>
-        <Image style={styles.avatar}
-                  source={{uri: 'https://media-exp1.licdn.com/dms/image/C5603AQER0BY9Q4pZsA/profile-displayphoto-shrink_200_200/0/1620798677815?e=1629936000&v=beta&t=T2ilRU6cQfLClkdGYnEGfb2Q8GV1kjBnBrje6yIVMMs'}}/>
-                <Text style={styles.name}>Lim Kai Zhe
-                </Text>
-        </View>
-
-        <ScrollView>
-        <View style={styles.item}>
-        
-        <View style={styles.actions}>
-
-          <View style={styles.menuBox}>
-            <Image style={styles.icon} source={{uri: 'https://thumbs.dreamstime.com/b/id-card-icon-vector-identity-tag-vector-illustration-symbol-driver-licence-logo-id-card-icon-vector-identity-tag-vector-152536266.jpg'}}/>
-            <Text style={styles.info}>ID</Text>
+          <MaterialCommunityIcons  style={styles.profilePic}
+            name={this.state.gender!=""?(this.state.gender=="Male"?'face':'face-woman'):''} 
+            size={50} 
+            color={this.state.gender!=""?(this.state.gender=="Male"?'#00BECC':'#EA3C53'):''}>
+          </MaterialCommunityIcons>
+          <Text style={styles.name} editable={false}>{this.state.name}</Text>
+          <Text style={styles.text}>{this.state.email}</Text>
+          <Text style={styles.text}>{this.state.phoneNumber}</Text>
+          <View style={styles.logout}>
+            <TouchableOpacity
+              style={styles.logoutOutline}
+              onPress={()=>{this.setState({logoutBoxVisible:true})}}
+            >
+              <Text style={styles.logoutText}>Logout</Text>
+            </TouchableOpacity>
           </View>
-            <Text style={styles.text}>1</Text>
+          <View style={styles.booksContainer}>
+            <View style={styles.subheader}>
+              <Text style={styles.subheaderText}>Your Books</Text>
+              <TouchableOpacity
+                onPress={()=>{
+                  this.props.navigation.navigate('AddBook')
+                }}
+              >
+                <MaterialIcons name={'add'} size={20} color={'#FAFAFA'}></MaterialIcons>
+              </TouchableOpacity>
+            </View>
           </View>
+          <FlatList
+            style={styles.list}
+            data={testData}
+            renderItem={({item})=>{
+              return(
+                <BookContainer
+                  bookId={item.id}
+                  bookName={item.name}
+                  fromScreen={'Profile'}
+                  thisProps={this.props}
+              ></BookContainer>
+              )
+            }}
+          ></FlatList>
 
-          <View style={styles.menuBox}>
-            <Image style={styles.icon} source={{uri: 'https://cdn2.vectorstock.com/i/1000x1000/70/26/man-woman-icon-gender-icon-vector-29447026.jpg'}}/>
-            <Text style={styles.info}>Gender</Text>
+        {/*pop out box for cancel trade*/}
+        <Modal visible={this.state.logoutBoxVisible}>
+          <View>
+            <View style={styles.popoutBoxBackground}></View>
+            <View style={styles.popoutBox}>
+              <Text style={styles.popoutBoxTitle}>Sure to logout?</Text>
+              <View style={styles.popoutActions}>
+                <TouchableOpacity
+                  style={styles.popoutActionOutline}
+                  onPress={()=>{this.setState({logoutBoxVisible:false})}}
+                >
+                  <Text style={styles.popoutBackText}>No</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.popoutActionOutline}
+                  onPress={()=>{
+                    /*logout*/
+                    this.props.navigation.dispatch(resetAction)
+                  }}
+                >
+                  <Text style={styles.popoutSubmitText}>Yes</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
           </View>
-          <Text style={styles.text}>Male</Text>
-
-          <View style={styles.menuBox}>
-            <Image style={styles.icon} source={{uri: 'https://www.nicepng.com/png/detail/518-5185628_email-icon-symbol-of-email-black.png'}}/>
-            <Text style={styles.info}>Email</Text>
-          </View>
-          <Text style={styles.text}>kaizhe00@gmail.com</Text>
-
-          <View style={styles.menuBox}>
-            <Image style={styles.icon} source={{uri: 'https://static.vecteezy.com/system/resources/previews/002/323/608/original/phone-icon-flat-style-isolated-on-white-background-free-vector.jpg'}}/>
-            <Text style={styles.info}>Phone Number</Text>
-          </View>
-          <Text style={styles.text}>012-3456789</Text>
-
-          <View style={styles.menuBox}>
-            <Image style={styles.icon} source={{uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSl5j7T5CUC3VxhI9Nl6UyR9A4ddJ_yDIx2LQ&usqp=CAU'}}/>
-            <Text style={styles.info}>Rate</Text>
-          </View>
-          <Text style={styles.text}>5</Text>
-        </View>
-        </ScrollView>
+        </Modal>
       </View>
     );
   }
 };
 
 const styles = StyleSheet.create({
-  headerContent:{
-    padding:20,
-    alignItems: 'center',
-    backgroundColor: "#AC94F4",
-    borderRadius:5,
-    marginBottom: 10,
-  },
   container:{
     flex:1,
-    flexDirection:'column',
     backgroundColor:'#212121',
-    color: '#FAFAFA'
   },
-  avatar: {
-    width: 130,
-    height: 130,
-    borderRadius: 63,
-    borderWidth: 4,
-    borderColor: "white",
-    marginBottom:10,
-  },
-  name:{
-    color: "#FAFAFA",
-    fontSize: 20,
-  },
-  menuBox:{
-    backgroundColor: "#FAFAFA",
-    width: '90%',
-    height: 70,
-    alignItems: 'center',
-    justifyContent: 'center',
-    margin:12,
-    marginLeft: 20,
-    marginRight: 20,
-    shadowColor: 'black',
-    shadowOpacity: .2,
-    shadowOffset: {
-      height:2,
-      width:-2
-    },
-    elevation:4,
-    borderRadius:5,
-  },
-  icon: {
-    width:30,
-    height:30,
-    marginTop: 15,
-  },
-  item:{
-    flexDirection: 'column',
-    padding:10,
-    marginTop: 5,
-    marginRight: 10,
-    justifyContent: 'space-between',
-    width: '100%', 
-    alignContent: 'stretch',
+  profilePic:{
+    width:'100%',
+    textAlign:'center',
+    paddingTop:5,
+    paddingBottom:5
   },
   text:{
-    backgroundColor: "#424242",
-    width: '90%',
-    height: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-    margin: 12,
-    marginLeft: 20,
-    marginRight: 20,
-    shadowColor: 'black',
-    shadowOpacity: .2,
-    shadowOffset: {
-      height:2,
-      width:-2
-    },
-    elevation:4,
-    borderRadius:5,
-    fontSize: 18,
-    textAlign: 'center',
-    color: "#AC94F4"
+    width:'100%',
+    fontSize:18,
+    fontFamily:'Raleway-Regular',
+    color:'#FAFAFA',
+    textAlign:'center',
+    paddingTop:2,
+    paddingBottom:2
   },
-  info:{
-    padding: 5,
+  name:{
+    width:'100%',
+    fontSize:18,
+    fontFamily:'Raleway-Bold',
+    color:'#FAFAFA',
+    textAlign:'center',
+  },
+  actions:{
+    flexDirection:'row',
+    padding:10,
+  },
+  green:{
+    width:'100%',
+    backgroundColor:'#4CBB17',
+    borderRadius:5,
+    alignItems:'center',
+    padding:10,
+  },
+  actionText:{
+    fontFamily:'Raleway-Bold',
+    fontSize:15,
+    color:'#FAFAFA',
+  },
+  booksContainer:{
+    margin:10,
+    marginBottom:0,
+  },
+  list:{
+    margin:10,
+    marginTop:0,
+    marginBottom:20
+  },
+  subheader:{
+    flexDirection:'row',
+    backgroundColor:'#424242',
+    borderBottomWidth:1,
+    borderBottomColor:'#212121',
+    padding:5,
+    paddingLeft:30,
+    paddingRight:30,
+    justifyContent:'space-between',
+    alignItems:'center',
+  },
+  subheaderText:{
+    fontFamily:'Raleway-Bold',
+    fontSize:20,
+    color:'#FAFAFA',
+    textAlign:'center',
+  },
+  bookContainer:{
+    flexDirection:"row",
+    marginBottom:0,
+    padding:10
+  },
+  book:{
+    width:'100%', 
+    flexDirection:'row'
+  },
+  bookIcon:{
+    width:'20%',
+    padding:10,
+    alignItems:'center',
+    justifyContent:'center',
+  },
+  bookName:{
+    width:'80%',
+    fontSize:18,
+    fontFamily:'Raleway-Regular',
+    color:'#FAFAFA',
+    padding:10,
+    paddingLeft:20
+  },
+  logout:{
+    width:'100%',
+    alignItems:'center',
+    padding:20
+  },
+  logoutOutline:{
+    width:'30%',
+    borderWidth:2,
+    borderColor:'#B80F0A',
+    borderRadius:5,
+    padding:5,
+  },
+  logoutText:{
+    textAlign:'center',
+    fontFamily:'Raleway-Bold',
+    fontSize:15,
+    color:'#B80F0A',
+  },
+  popoutBoxBackground:{
+    height:'100%',
+    backgroundColor:'#424242',
+  },
+  popoutBox:{
+    flexDirection:'column',
+    width:'80%',
+    backgroundColor:'#212121',
+    borderRadius:10,
+    position:'absolute',
+    marginLeft:'10%',
+    marginRight:'10%',
+    marginTop:'50%',
+    marginBottom:'50%'
+  },
+  popoutBoxTitle:{
+    width:'100%',
+    fontFamily:'Raleway-Bold',
+    fontSize:15,
+    color:'#FAFAFA',
+    textAlign:'center',
+    padding:50,
+    paddingBottom:20,
+  },
+  popoutActions:{
+    width:'100%',
+    flexDirection:'row',
+    padding:20,
+    justifyContent:'space-between'
+  },
+  popoutActionOutline:{
+    width:'45%',
+    borderRadius:5,
+    alignItems:'center',
+    padding:10,
+  },
+  popoutBackText:{
+    fontFamily:'Raleway-Bold',
+    fontSize:15,
+    color:'#B80F0A',
+  },
+  popoutSubmitText:{
+    fontFamily:'Raleway-Bold',
+    fontSize:15,
+    color:'#4CBB17',
   }
 });

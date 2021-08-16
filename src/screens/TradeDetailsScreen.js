@@ -3,11 +3,11 @@ import { Text, StyleSheet, View, ScrollView, TouchableOpacity, FlatList, Touchab
 
 //import icons
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 
 //import components
 import AppHeader from "../components/AppHeader";
+import BookContainer from "../components/BookContainer";
 
 //test data
 const testData=[
@@ -18,18 +18,6 @@ const testData=[
         id:'1',
         name:'Book 1'
       },
-      {
-        id:'2',
-        name:'Book 2'
-      },
-      {
-        id:'3',
-        name:'Book 2'
-      },
-      {
-        id:'4',
-        name:'Book 2'
-      }
     ]
   },
   {
@@ -47,13 +35,16 @@ export default class TradeDetailsScreen extends Component<Props>{
   constructor(props){
     super(props);
     this.state={
-      id:this.props.navigation.getParam('id')?this.props.navigation.getParam('id'):"",
-      gender:this.props.navigation.getParam('gender')?this.props.navigation.getParam('gender'):"",
-      name:this.props.navigation.getParam('name')?this.props.navigation.getParam('name'):"",
+      tradeId:'',
+      userId:'',
+      
       date:this.props.navigation.getParam('date')?this.props.navigation.getParam('date'):"",
       status:this.props.navigation.getParam('status')?this.props.navigation.getParam('status'):"",
       statusColor:this.props.navigation.getParam('status')?(this.props.navigation.getParam('status')=="Done"?'#4CBB17':(this.props.navigation.getParam('status')=="Exchanging"?'#FCE205':'#B80F0A')):'#FAFAFA',
-    
+      
+      bookId:this.props.navigation.getParam('bookId')?this.props.navigation.getParam('bookId'):"",
+      bookName:this.props.navigation.getParam('bookName')?this.props.navigation.getParam('bookName'):"",
+
       declineBoxVisible:false,
       rateBoxVisible:false,
       cancelBoxVisible:false,
@@ -72,12 +63,22 @@ export default class TradeDetailsScreen extends Component<Props>{
     return(
       <View style={styles.container}>
         <AppHeader thisProps={this.props}></AppHeader>
-        <MaterialCommunityIcons  style={styles.profilePic}
-          name={this.state.gender!=""?(this.state.gender=="Male"?'face':'face-woman'):''} 
-          size={50} 
-          color={this.state.gender!=""?(this.state.gender=="Male"?'#00BECC':'#EA3C53'):''}>
-        </MaterialCommunityIcons>
-        <Text style={styles.text}>{this.state.name}</Text>
+        <TouchableHighlight
+            style={styles.profile}
+            underlayColor={'#424242'}
+            onPress={()=>{this.props.navigation.navigate('ViewProfile',{
+              userId:this.state.userId,
+            })}}
+          >
+            <View>
+              <MaterialCommunityIcons  style={styles.profilePic}
+                name={this.state.gender!=""?(this.state.gender=="Male"?'face':'face-woman'):''} 
+                size={50} 
+                color={this.state.gender!=""?(this.state.gender=="Male"?'#00BECC':'#EA3C53'):''}>
+              </MaterialCommunityIcons>
+              <Text style={styles.name} editable={false}>{this.state.name}</Text>
+            </View>
+          </TouchableHighlight>
         <Text style={styles.text}>{this.state.date}</Text>
         <Text style={[styles.text,{color:this.state.statusColor,fontFamily:'Raleway-Bold'}]}>{this.state.status}</Text>
         <SectionList
@@ -90,26 +91,12 @@ export default class TradeDetailsScreen extends Component<Props>{
           }}
           renderItem={({item})=>{
             return(
-              <TouchableHighlight style={styles.bookContainer}
-                underlayColor={'#424242'}
-                onPress={()=>this.props.navigation.navigate('BookDetails',{
-                  //test data
-                  id:this.state.id,
-                  gender:'Male',
-                  owner:'Lee Siang Wei',
-                  name:'XXX',
-                  genre:'Book',
-                  language:'English',
-                  year:'2021',
-                  condition:'New',
-                  description:"I just bought an extra one, wanna to exhange here",
-                })}  
-              >
-                <View style={styles.book}>
-                  <View style={styles.bookIcon}><FontAwesome5 name={'book'} size={25} color={'#FAFAFA'}></FontAwesome5></View>
-                  <Text style={styles.bookName}>{item.name}</Text>
-                </View>
-              </TouchableHighlight>
+              <BookContainer
+                bookId={item.id}
+                bookName={item.name}
+                fromScreen={'Trade'}
+                thisProps={this.props}
+              ></BookContainer>
             )
           }}
         ></SectionList>
@@ -285,12 +272,29 @@ const styles = StyleSheet.create({
     flex:1,
     flexDirection:'column',
     backgroundColor:'#212121',
+    justifyContent:'center',
+    alignItems:'center'
+  },
+  profile:{
+    width:'100%',
+    flexDirection:'column',
+    margin:5,
+    borderRadius:5
   },
   profilePic:{
     width:'100%',
     textAlign:'center',
     paddingTop:5,
     paddingBottom:5
+  },
+  name:{
+    width:'100%',
+    fontSize:18,
+    fontFamily:'Raleway-Bold',
+    color:'#FAFAFA',
+    textAlign:'center',
+    paddingTop:2,
+    paddingBottom:2
   },
   text:{
     width:'100%',
@@ -300,29 +304,6 @@ const styles = StyleSheet.create({
     textAlign:'center',
     paddingTop:2,
     paddingBottom:2
-  },
-  bookContainer:{
-    flexDirection:"row",
-    marginBottom:0,
-    padding:10
-  },
-  book:{
-    width:'100%', 
-    flexDirection:'row'
-  },
-  bookIcon:{
-    width:'20%',
-    padding:10,
-    alignItems:'center',
-    justifyContent:'center',
-  },
-  bookName:{
-    width:'80%',
-    fontSize:18,
-    fontFamily:'Raleway-Regular',
-    color:'#FAFAFA',
-    padding:10,
-    paddingLeft:20
   },
   giveReceiveContainer:{
     margin:10,

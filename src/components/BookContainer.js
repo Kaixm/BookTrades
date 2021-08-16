@@ -2,74 +2,33 @@ import React, {Component} from 'react';
 import { Text, View, StyleSheet, Alert, TouchableHighlight } from 'react-native';
 
 //import icons
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
 // BookContainer
 export default class BookContainer extends Component<Props>{
   constructor(props){
     super(props);
     this.state={
-      id:this.props.id?this.props.id:"",
-      gender: this.props.user_id ? this.props.gender : "",
-      owner: this.props.owner ? this.props.owner: "",
-      name:this.props.name?this.props.name:"",
-      genre: this.props.genre? this.props.genre: "",
-      language: this.props.language? this.props.language: "",
-      year:this.props.year?this.props.year:"",
-      condition: this.props.condition? this.props.condition: "",
-      description:this.props.decription?this.props.description:"",
+      bookId:this.props.bookId?this.props.bookId:"",
+      bookName:this.props.bookName?this.props.bookName:"",
+      fromScreen:this.props.fromScreen?this.props.fromScreen:"",
+      thisProps:this.props.thisProps?this.props.thisProps:""
     }
   }
 
   render(){
+    console.log(this.state.fromScreen)
     return (
-      <TouchableHighlight style={styles.repoContainer}
-      underlayColor={'#616161'}
-      onPress={
-        this.props.thisProps
-        ?()=>this.props.thisProps.navigation.navigate('RepoBookDetails',{
-          id: this.state.id,
-          gender: this.state.gender,
-          owner: this.state.owner,
-          name: this.state.name,
-          genre:this.state.genre,
-          language:this.state.language,
-          year:this.state.year,
-          condition:this.state.condition,
-          description:this.state.description,
-          })
-        :()=>{}}  
-    >
-        <View style={styles.repo}>
-          <View style={styles.repoBookIcon}>
-            <MaterialCommunityIcons 
-              name="book"
-              size={80} 
-              color='#AC94F4'>
-            </MaterialCommunityIcons>
-          </View>
-          <View style={styles.repoDetails}>
-            <View style={styles.repoDetail}>
-              <Text style={styles.repoLabel}>Name : </Text>
-              <Text style={styles.repoText}>{this.state.name}</Text>
-            </View>
-            <View style={styles.repoDetail}>
-              <Text style={styles.repoLabel}>Genre : </Text>
-              <Text style={styles.repoText}>{this.state.genre}</Text>
-            </View>
-            <View style={styles.repoDetail}>
-              <Text style={styles.repoLabel}>Language : </Text>
-              <Text style={styles.repoText}>{this.state.language}</Text>
-            </View>
-            <View style={styles.repoDetail}>
-              <Text style={styles.repoLabel}>Year : </Text>
-              <Text style={styles.repoText}>{this.state.year}</Text>
-            </View>
-            <View style={styles.repoDetail}>
-              <Text style={styles.repoLabel}>Condition : </Text>
-              <Text style={styles.repoText}>{this.state.condition}</Text>
-            </View>
-          </View>
+      <TouchableHighlight style={styles.bookContainer}
+        underlayColor={'#424242'}
+          onPress={()=>this.props.thisProps.navigation.navigate('BookDetails',{
+            bookId:this.state.bookId,
+            fromScreen:this.state.fromScreen
+          })}  
+      >
+        <View style={styles.book}>
+          <View style={styles.bookIcon}><FontAwesome5 name={'book'} size={25} color={'#FAFAFA'}></FontAwesome5></View>
+          <Text style={styles.bookName}>{this.state.bookName}</Text>
         </View>
       </TouchableHighlight>
     );
@@ -77,44 +36,28 @@ export default class BookContainer extends Component<Props>{
 };
 
 const styles = StyleSheet.create({
-  repoContainer:{
+
+  bookContainer:{
     flexDirection:"row",
-    margin:10,
     marginBottom:0,
-    backgroundColor:'#424242',
-    borderRadius:5,
+    padding:10
   },
-  repo:{
+  book:{
     width:'100%', 
     flexDirection:'row'
   },
-  repoBookIcon:{
-    width:'25%',
-    flexDirection:'row',
-    padding: 5,
+  bookIcon:{
+    width:'20%',
+    padding:10,
     alignItems:'center',
-    justifyContent: 'center',
+    justifyContent:'center',
   },
-  repoDetails:{
-    width:'75%',
-    flexDirection:'column',
-    padding:8,
-    alignItems:"center",
-  },
-  repoDetail:{
-    flexDirection:'row',
-  },
-  repoLabel:{
-    width:'35%',
-    fontSize:14,
-    fontFamily:'Raleway-Bold',
-    color:'#FAFAFA',
-    paddingLeft:10
-  },
-  repoText:{
-    width:'65%',
-    fontSize:14,
+  bookName:{
+    width:'80%',
+    fontSize:18,
     fontFamily:'Raleway-Regular',
     color:'#FAFAFA',
-  }
+    padding:10,
+    paddingLeft:20
+  },
 });

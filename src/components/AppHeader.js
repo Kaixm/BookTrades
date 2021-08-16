@@ -27,12 +27,14 @@ const styles=StyleSheet.create({
     height:50,
     borderBottomWidth:1,
     borderBottomColor:'#424242',
+    alignItems:'center'
   },
   back:{
     height:'100%',
     position:'absolute',
+    top:'25%',
+    left:10,
     zIndex:1,
-    padding:10
   },
   name:{
     width:'100%',
@@ -42,5 +44,6 @@ const styles=StyleSheet.create({
     color:"#AC94F4",
     marginTop:5,
     marginBottom:5,
+    letterSpacing:5
   }
 })

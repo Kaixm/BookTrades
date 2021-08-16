@@ -1,34 +1,28 @@
 import React, { Component } from 'react';
-import {
-  StyleSheet,
-  TextInput,
-  Text,
-  ScrollView,
-  View,
-  TouchableOpacity,
-} from 'react-native';
+import {StyleSheet, TextInput, Text, ScrollView, View, TouchableOpacity, Picker} from 'react-native';
+import { log } from 'react-native-reanimated';
 
 //import components
 import AppHeader from "../components/AppHeader";
 
-type Props = {};
-export default class AddBookScreen extends Component<Props> {
-  static navigationOptions = {
-    title: 'Add Book',
-  };
+const currentYear=new Date().getFullYear();
+const yearRange=[];
 
+export default class AddBookScreen extends Component<Props> {
   constructor(props) {
     super(props)
 
+    for(let i=currentYear-50;i<=currentYear+50;i++){
+      yearRange.push(i.toString());
+    }
+
     this.state = {
-      owner: '',
       name: '',
-      genre: '',
-      language: '',
-      year: '',
-      condition: '',
+      genre: 'Fiction',
+      language: 'English',
+      year: currentYear.toString(),
+      condition: 'Good',
       description: '',
-      fromHomeScreen:true,
     };
 
   }
@@ -51,6 +45,8 @@ export default class AddBookScreen extends Component<Props> {
   }*/
 
   render() {
+    //disable the warning
+    console.disableYellowBox = true;
     return (
       <View style={styles.container}>
       <AppHeader thisProps={this.props}></AppHeader>
@@ -60,58 +56,81 @@ export default class AddBookScreen extends Component<Props> {
           <View style={styles.details}>
             <View style={styles.detail}>
                 <Text style={styles.label}>Book Name: </Text>
-                <TextInput style={styles.text} editable={true} value={this.state.name}
-                 onChangeText={(name) => { this.setState({ name })}}></TextInput>
+                <TextInput 
+                  style={styles.text} 
+                  editable={true} 
+                  value={this.state.name} 
+                  placeholder={'Book name'}
+                  placeholderTextColor={'#828282'}
+                  onChangeText={(name) => { this.setState({ name })}}></TextInput>
             </View>
             <View style={styles.detail}>
                 <Text style={styles.label}>Genre: </Text>
-                <TextInput style={styles.text} editable={true} value={this.state.genre}
-                 onChangeText={(genre) => { this.setState({ genre })}}></TextInput>
+                <Picker 
+                  style={styles.pickerInput}
+                  selectedValue={this.state.genre}
+                  onValueChange={(genre)=>{this.setState({genre:genre})}}
+                >
+                  <Picker.Item label={'Fiction'} value={'Fiction'} />
+                  <Picker.Item label={'Non-Fiction'} value={'Non-Fiction'} />
+                </Picker>
             </View>
             <View style={styles.detail}>
                 <Text style={styles.label}>Language: </Text>
-                <TextInput style={styles.text} editable={true} value={this.state.language}
-                  onChangeText={(language) => { this.setState({ language })}}></TextInput>
+                <Picker 
+                  style={styles.pickerInput}
+                  selectedValue={this.state.language}
+                  onValueChange={(language)=>{this.setState({language:language})}}
+                >
+                  <Picker.Item label={'English'} value={'English'} />
+                  <Picker.Item label={'Chinese'} value={'Chinese'} />
+                  <Picker.Item label={'Malay'} value={'Bahasa Melayu'} />
+                  <Picker.Item label={'Other'} value={'Other'} />
+                </Picker>
             </View>
             <View style={styles.detail}>
                 <Text style={styles.label}>Year: </Text>
-                <TextInput style={styles.text} editable={true} value={this.state.year}
-                 onChangeText={(year) => { this.setState({ year })}}></TextInput>
+                <Picker 
+                  style={styles.pickerInput}
+                  selectedValue={this.state.year}
+                  onValueChange={(year)=>{this.setState({year:year})}}
+                >
+                  {yearRange.map(item=>{return <Picker.Item label={item} value={item} />})}
+                </Picker>
             </View>
             <View style={styles.detail}>
                 <Text style={styles.label}>Condition: </Text>
-                <TextInput style={styles.text} editable={true} value={this.state.condition}
-                 onChangeText={(condition) => { this.setState({ condition })}}></TextInput>
+                <Picker 
+                  style={styles.pickerInput}
+                  selectedValue={this.state.language}
+                  onValueChange={(language)=>{this.setState({language:language})}}
+                >
+                  <Picker.Item label={'Good'} value={'Good'} />
+                  <Picker.Item label={'Fair'} value={'Fair'} />
+                  <Picker.Item label={'Poor'} value={'Poor'} />
+                </Picker>
             </View>
             <View style={styles.detail}>
                 <Text style={styles.label}>Description: </Text>
-                <TextInput style={styles.text} editable={true} multiline={true} value={this.state.description}
-                 onChangeText={(description) => { this.setState({ description })}}></TextInput>
-          </View>
-          {this.state.fromHomeScreen
-          ?(
-            <View style={styles.actions}>
-                    <TouchableOpacity style={styles.green}
-                    //onPress = 
-                    >
-                <Text style={styles.actionText}>Add Book</Text>
-              </TouchableOpacity>      
+                <TextInput 
+                  style={styles.text} 
+                  editable={true} 
+                  multiline={true} 
+                  value={this.state.description} 
+                  placeholder={'Any additional comment?'}
+                  placeholderTextColor={'#828282'}
+                  onChangeText={(description) => { this.setState({ description })}}></TextInput>
             </View>
-          )
-          : null}
-          {this.state.fromHomeScreen
-          ?(
             <View style={styles.actions}>
-                    <TouchableOpacity style={styles.red}
-                    onPress={()=>{
-                      this.props.navigation.navigate('Repository')
-                }}
-                    >
-                <Text style={styles.actionText}>Cancel</Text>
-              </TouchableOpacity>      
+              <TouchableOpacity style={styles.green}
+                onPress={()=>{
+                  //add book
+                this.props.navigation.goBack()
+              }}
+            >
+              <Text style={styles.actionText}>Add</Text>
+            </TouchableOpacity>      
             </View>
-          )
-          :null}
         </View>
         </ScrollView>
         </View>
@@ -151,10 +170,17 @@ const styles = StyleSheet.create({
     color:'#FAFAFA',
     padding:0,
   },
+  pickerInput:{
+    width:'65%',
+    fontSize:20,
+    fontFamily:'Raleway-Regular',
+    color:'#FAFAFA',
+    padding:0,
+    height:30,
+  },
   actions:{
     flexDirection:'row',
     padding: 10,
-    
   },
   green:{
     width:'100%',
@@ -165,7 +191,7 @@ const styles = StyleSheet.create({
   },
   red:{
     width:'100%',
-    backgroundColor:'#E64140',
+    backgroundColor:'#B80F0A',
     borderRadius:5,
     alignItems:'center',
     padding:10,
@@ -175,5 +201,4 @@ const styles = StyleSheet.create({
     fontSize:15,
     color:'#FAFAFA',
   },
-
 });

@@ -4,7 +4,6 @@ import { StackActions,NavigationActions } from "react-navigation";
 
 //import icons
 import Feather from 'react-native-vector-icons/Feather';
-import { color } from "react-native-reanimated";
 
 //prevent HOME back to LOGIN once back button pressed
 const resetAction = StackActions.reset({
@@ -32,37 +31,35 @@ export default class LoginScreen extends Component<Props>{
   render(){
     return(
       <View style={styles.container}>
-        <Text style={styles.name}><Feather name={"book"} size={50} color={"#AC94F4"}></Feather>ookTrades</Text>  
+        <Text style={styles.name}><Feather name={"book"} size={30} color={"#AC94F4"}></Feather>ookTrades</Text>  
         <TextInput style = {styles.input}
           underlineColorAndroid = "transparent"
-          placeholder = "Enter email..."
+          placeholder = "Email"
           placeholderTextColor = "#616161"
           autoCapitalize = "none"
           onChangeText = {this.handleEmail}
         />
         <TextInput style = {styles.input}
           underlineColorAndroid = "transparent"
-          placeholder = "Enter password..."
+          placeholder = "Password"
           placeholderTextColor = "#616161"
           autoCapitalize = "none"
           onChangeText = {this.handlePassword}
         />
 
-        <View style={styles.actions}>
         <TouchableOpacity 
-         style={styles.green}
+         style={styles.login}
         onPress={()=>{this.props.navigation.dispatch(resetAction);}}
         >
-        <Text style={styles.actionText}>Login</Text></TouchableOpacity>
+        <Text style={styles.loginText}>Login</Text></TouchableOpacity>
         
         <TouchableOpacity 
-        style={styles.purple}
+        style={styles.register}
         onPress={()=>this.props.navigation.navigate('Register')}
         >
-        <Text style={styles.actionText}>Register</Text></TouchableOpacity>
+        <Text style={styles.registerText}>Register</Text></TouchableOpacity>
         
         </View>
-      </View>
     );
   }
 };
@@ -75,48 +72,53 @@ const styles = StyleSheet.create({
     backgroundColor:'#212121',
   },
   name:{
-    fontSize: 40 ,
+    fontSize: 30 ,
     fontFamily:'Quicksand-Bold',
     color:"#AC94F4",
-    marginTop: 5,
-    marginBottom: 60,
+    marginBottom: 30,
+    letterSpacing:5
   },
-  actions:{
-    flexDirection: "row" ,
-    padding:20,
-    marginTop: 50,
-    justifyContent: 'space-between',
-    width: '100%', 
-  },
-  green:{
-    width:'40%',
-    backgroundColor:'#4CBB17',
-    borderRadius:5,
-    alignItems:'center',
-    padding:10,
-    marginLeft:'5%',
-  },
-  purple:{
-    width:'40%',
+  login:{
+    width:'60%',
     backgroundColor:"#AC94F4",
     borderRadius:5,
+    borderWidth:2,
+    borderColor:'#AC94F4',
     alignItems:'center',
-    padding:10,
-    marginRight:'5%',
+    padding:5,
+    marginTop:50
   },
-  actionText:{
+  loginText:{
     fontFamily:'Raleway-Bold',
     fontSize:18,
     color:'#FAFAFA',
-    marginTop:5,
-    marginBottom:5,
+    alignItems: 'center',
+  },
+  register:{
+    width:'60%',
+    borderRadius:5,
+    borderWidth:2,
+    borderColor:'#AC94F4',
+    alignItems:'center',
+    padding:5,
+    marginTop:10
+  },
+  registerText:{
+    fontFamily:'Raleway-Bold',
+    fontSize:18,
+    color:'#AC94F4',
     alignItems: 'center',
   },
   input:{
-    marginTop:15,
-    marginBottom:15,
+    marginTop:5,
+    marginBottom:5,
     color:"#FFFAF0",
-    fontSize: 20,
+    fontSize: 18,
     shadowColor: "#FFFAF0",
+    borderBottomWidth:2,
+    borderColor:"#AC94F4",
+    borderRadius:5,
+    padding:10,
+    width:'60%'
   },
 });
