@@ -1,9 +1,3 @@
-```
-updated on 06/08
-v1.0  LSW  template
-v1.2  LSW  new template (dark theme)
-```
-
 # BookTrades (BTs)
 BookTrades is a Wireless Application Development assignment project which is going to developed by LSW, PYH, LKZ, TKM and LJE.
 
