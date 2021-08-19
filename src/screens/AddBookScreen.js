@@ -1,9 +1,15 @@
 import React, { Component } from 'react';
-import {StyleSheet, TextInput, Text, ScrollView, View, TouchableOpacity, Picker} from 'react-native';
+import {StyleSheet, TextInput, Text, ScrollView, View, TouchableOpacity, Picker, Alert} from 'react-native';
 import { log } from 'react-native-reanimated';
 
 //import components
 import AppHeader from "../components/AppHeader";
+
+//import login user id
+import loginUserId from '../../LoginUserId';
+
+//server path
+let config=require('../../Config');
 
 const currentYear=new Date().getFullYear();
 const yearRange=[];
@@ -11,38 +17,60 @@ const yearRange=[];
 export default class AddBookScreen extends Component<Props> {
   constructor(props) {
     super(props)
-
-    for(let i=currentYear-50;i<=currentYear+50;i++){
+    for(let i=currentYear-50;i<=currentYear;i++){
       yearRange.push(i.toString());
     }
-
     this.state = {
-      name: '',
+      loginUserId: loginUserId.getUserId(),
+      bookName: '',
       genre: 'Fiction',
       language: 'English',
       year: currentYear.toString(),
       condition: 'Good',
       description: '',
     };
-
+    this._insert = this._insert.bind(this);
   }
 
-  /*_insert() {
-    this.db.transaction((tx) => {
-      tx.executeSql('INSERT INTO repo(owner,name,genre,language,year,condition,description) VALUES(?,?,?,?,?,?,?)', [
-        this.state.owner,
-        this.state.name,
-        this.state.genre,
-        this.state.language,
-        this.state.year,
-        this.state.condition,
-        this.state.description,
-      ]);
+  _insert() {
+    let url = config.settings.serverPath + '/api/book';
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userId: this.state.loginUserId,
+        bookName: this.state.bookName,
+        genre: this.state.genre,
+        language: this.state.language,
+        year: this.state.year,
+        condition: this.state.condition,
+        description: this.state.description,
+      }),
+    }).then((response) => {
+      if(!response.ok) {
+        Alert.alert('Error', response.status.toString());
+        throw Error('Error ' + response.status);
+      }
+      return response.json()
+    }).then((responseJson) => {
+      if(responseJson.affected > 0) {
+        Alert.alert('Record Saved', 'Record for `' + this.state.bookName + '` has been saved');
+      }
+      else {
+        console.log('respond')
+        console.log(responseJson.affected);
+        Alert.alert('Error saving record');
+      }
+      this.props.navigation.getParam('refresh')();
+      this.props.navigation.goBack();
+    })
+    .catch((error) => {
+      console.error(error);
     });
-
-    this.props.navigation.getParam('refresh')();
-    this.props.navigation.goBack();
-  }*/
+  }
 
   render() {
     //disable the warning
@@ -59,10 +87,10 @@ export default class AddBookScreen extends Component<Props> {
                 <TextInput 
                   style={styles.text} 
                   editable={true} 
-                  value={this.state.name} 
+                  value={this.state.bookName} 
                   placeholder={'Book name'}
                   placeholderTextColor={'#828282'}
-                  onChangeText={(name) => { this.setState({ name })}}></TextInput>
+                  onChangeText={(bookName)=>{this.setState({bookName:bookName})}}></TextInput>
             </View>
             <View style={styles.detail}>
                 <Text style={styles.label}>Genre: </Text>
@@ -103,7 +131,7 @@ export default class AddBookScreen extends Component<Props> {
                 <Picker 
                   style={styles.pickerInput}
                   selectedValue={this.state.language}
-                  onValueChange={(language)=>{this.setState({language:language})}}
+                  onValueChange={(condition)=>{this.setState({condition:condition})}}
                 >
                   <Picker.Item label={'Good'} value={'Good'} />
                   <Picker.Item label={'Fair'} value={'Fair'} />
@@ -119,17 +147,14 @@ export default class AddBookScreen extends Component<Props> {
                   value={this.state.description} 
                   placeholder={'Any additional comment?'}
                   placeholderTextColor={'#828282'}
-                  onChangeText={(description) => { this.setState({ description })}}></TextInput>
+                  onChangeText={(description) => { this.setState({ description:description })}}></TextInput>
             </View>
             <View style={styles.actions}>
               <TouchableOpacity style={styles.green}
-                onPress={()=>{
-                  //add book
-                this.props.navigation.goBack()
-              }}
-            >
-              <Text style={styles.actionText}>Add</Text>
-            </TouchableOpacity>      
+                onPress={()=>{this._insert()}}
+              >
+                <Text style={styles.actionText}>Add</Text>
+              </TouchableOpacity>      
             </View>
         </View>
         </ScrollView>

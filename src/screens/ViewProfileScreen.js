@@ -9,41 +9,98 @@ import AppHeader from "../components/AppHeader";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 
+//server path
+let config=require('../../Config');
+
 export default class ViewProfileScreen extends Component<Props>{
   constructor(props){
     super(props);
     this.state={
-      userId:this.props.navigation.getParam('userId')?this.props.navigation.getParam('userId'):"",
+      userId:this.props.navigation.getParam('userId')?this.props.navigation.getParam('userId'):null,
+      user:null,
+      rates:[],
 
       logoutBoxVisible:false,
     }
+    this._queryUser = this._queryUser.bind(this);
+    this._queryRate = this._queryRate.bind(this);
+  }
+
+  componentDidMount() {
+    this._queryUser();
+    this._queryRate();
+  }
+
+  _queryUser() {
+    let url = config.settings.serverPath + '/api/user/' + this.state.userId;
+    fetch(url)
+      .then(response => {
+        if (!response.ok) {
+          Alert.alert('Error', response.status.toString());
+          throw Error('Error ' + response.status);}
+        return response.json();})
+      .then(user => {
+        this.setState({user});})
+      .catch(error => {
+        console.error(error);});
+  }
+
+  _queryRate() {
+    let url = config.settings.serverPath + '/api/rate';
+    fetch(url)
+    .then((response) => {
+      if(!response.ok) {
+        Alert.alert('Error', response.status.toString());  
+        throw Error('Error ' + response.status);
+      }
+      return response.json()  
+    })
+    .then((rates) => {  
+      this.setState({rates});
+    })
+    .catch((error) => {
+      console.log(error)
+    });
   }
 
   render(){
+    var frown=0;
+    var meh=0;
+    var smile=0;
+    for(let i=0;i<this.state.rates.length;i++){
+      if(this.state.userId==this.state.rates[i].userId){
+        if(this.state.rates[i].rate==0)
+          frown+=1;
+        else if(this.state.rates[i].rate==1)
+          meh+=1;
+        else
+          smile+=1;
+      }
+    }
     return(
       <View style={styles.container}>
         <AppHeader thisProps={this.props}></AppHeader>
         <View style={styles.body}>
           <MaterialCommunityIcons  style={styles.profilePic}
-            name={this.state.gender!=""?(this.state.gender=="Male"?'face':'face-woman'):''} 
+            name={this.state.user?(this.state.user.gender=="Male"?'face':'face-woman'):''} 
             size={50} 
-            color={this.state.gender!=""?(this.state.gender=="Male"?'#00BECC':'#EA3C53'):''}>
+            color={this.state.user?(this.state.user.gender=="Male"?'#00BECC':'#EA3C53'):''}>
           </MaterialCommunityIcons>
-          <Text style={styles.name} editable={false}>{}</Text>
-          <Text style={styles.text}>{}</Text>
-          <Text style={styles.text}>{}</Text>
+          <Text style={styles.name} editable={false}>{this.state.user?this.state.user.userName:null}</Text>
+          <Text style={styles.text}>{this.state.user?this.state.user.email:null}</Text>
+          <Text style={styles.text}>{this.state.user?this.state.user.phoneNumber:null}</Text>
           <View style={styles.rateContainer}>
             <View>
               <AntDesign name={'frowno'} size={40} color={'#B80F0A'}></AntDesign>
-              <Text style={styles.frownCount}>{}</Text>
+              <Text style={styles.frownCount}>{frown}</Text>
             </View>
             <View>
               <AntDesign name={'meh'} size={40} color={'#FCE205'}></AntDesign>
-              <Text style={styles.mehCount}>{}</Text>
+              <Text style={styles.mehCount}>{meh}</Text>
             </View>
             <View>
               <AntDesign name={'smileo'} size={40} color={'#4CBB17'}></AntDesign>
-              <Text style={styles.smileCount}>{}</Text>
+              <Text style={styles.smileCount}>{smile}</Text>
             </View>
           </View>
         </View>

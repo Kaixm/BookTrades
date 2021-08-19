@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {StyleSheet, TextInput, Text, View, ScrollView, TouchableOpacity, Picker} from 'react-native';
+import {StyleSheet, TextInput, Text, View, ScrollView, TouchableOpacity, Picker, Alert} from 'react-native';
 
 //import icons
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -7,82 +7,105 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 //import components
 import AppHeader from "../components/AppHeader";
 
+//import login user id
+import loginUserId from '../../LoginUserId';
+
+//server path
+let config=require('../../Config');
+
 const currentYear=new Date().getFullYear();
 const yearRange=[];
 
 export default class EditBookScreen extends Component<Props> {
-  static navigationOptions = ({navigation}) => {
-    return {
-      title: 'Edit: ' + navigation.getParam('headerTitle')
-    };
-  };
-
   constructor(props) {
     super(props)
-
-    for(let i=currentYear-50;i<=currentYear+50;i++){
+    for(let i=currentYear-50;i<=currentYear;i++){
       yearRange.push(i.toString());
     }
-
     this.state = {
-      bookId:this.props.navigation.getParam('bookId')?this.props.navigation.getParam('bookId'):"",
+      bookId:this.props.navigation.getParam('bookId')?this.props.navigation.getParam('bookId'):null,
+      userId:loginUserId.getUserId(),
+      bookName:null,
+      genre:null,
+      language:null,
+      year:null,
+      condition:null,
+      description:null,
     };
-
+    this._query = this._query.bind(this);
   }
 
-  /*_query() {
-    this.db.transaction((tx) => {
-        tx.executeSql('SELECT * FROM repo WHERE id = ?', [this.state.id], (tx, results) => {
-        if(results.rows.length) {
-            this.setState({
-                repoData: results.rows.item(0),
-          })
-        }
+  componentDidMount() {
+    this._query();
+  }
+
+  async _query() {
+    let url = config.settings.serverPath + '/api/book/' + this.state.bookId;
+    await fetch(url)
+      .then(response => {
+        if (!response.ok) {
+          Alert.alert('Error', response.status.toString());
+          throw Error('Error ' + response.status);}
+        return response.json();})
+      .then(book => {
+        this.setState({
+          bookName:book.bookName,
+          genre:book.genre,
+          language:book.language,
+          year:book.year,
+          condition:book.condition,
+          description:book.description
+        });
       })
-    });
-  }*/
+      .catch(error => {
+        console.error(error);
+      });
+  }
 
-  /*_update() {
-    this.db.transaction((tx) => {
-      tx.executeSql('UPDATE repo SET name=?, genre=?, language=?, year=?, condition=?, description=? WHERE id=?', [
-          this.state.id,
-          this.state.name,
-          this.state.genre,
-          this.state.language,
-          this.state.year,
-          this.state.condition,
-          this.state.description,
-      ]);
-    });
-
-    this.props.navigation.getParam('refresh')();
-    this.props.navigation.getParam('homeRefresh')();
-    this.props.navigation.goBack();
-  }*/
-
-   /*_delete() {
-    Alert.alert('Confirm Deletion', 'Delete `'+ this.state.bookData.name +'`?', [
-      {
-        text: 'No',
-        onPress: () => {},
+  async _update() {
+    let url = config.settings.serverPath + '/api/book/' + this.state.bookId;
+    fetch(url, {
+      method: 'PUT',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
       },
-      {
-        text: 'Yes',
-        onPress: () => {
-          this.db.transaction((tx) => {
-            tx.executeSql('DELETE FROM repo WHERE id = ?', [this.state.id])
-          });
-
-          this.props.navigation.getParam('refresh')();
-          this.props.navigation.goBack();
-        },
-      },
-    ], { cancelable: false });
-  }*/
+      body: JSON.stringify({
+        bookName: this.state.bookName,
+        genre: this.state.genre,
+        language: this.state.language,
+        year: this.state.year,
+        condition: this.state.condition,
+        description: this.state.description,
+      }),
+    })
+    .then((response) => {
+      if(!response.ok) {
+        Alert.alert('Error', response.status.toString());
+        throw Error('Error ' + response.status);
+      }
+      return response.json()
+    })
+    .then((responseJson) => {
+      if(responseJson.affected > 0) {
+        Alert.alert('Record Updated', 'Record for `' + this.state.bookName + '` has been updated');
+      }
+      else {
+        Alert.alert('Error updating record');
+      }
+      this.props.navigation.getParam('refresh')();
+      this.props.navigation.getParam('refreshProfile')();
+      this.props.navigation.goBack();
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+  }
 
   render() {
     //disable the warning
     console.disableYellowBox = true;
+    console.log(this.props.navigation.getParam('refreshProfile'));
     return (
       <View style={styles.container}>
       <AppHeader thisProps={this.props}></AppHeader>
@@ -94,16 +117,16 @@ export default class EditBookScreen extends Component<Props> {
                 <TextInput 
                   style={styles.text} 
                   editable={true} 
-                  //value={} 
+                  value={this.state.bookName} 
                   placeholder={'Book name'}
                   placeholderTextColor={'#828282'}
-                  onChangeText={(name) => { this.setState({ name })}}></TextInput>
+                  onChangeText={(bookName) => { this.setState({ bookName:bookName })}}></TextInput>
             </View>
             <View style={styles.detail}>
                 <Text style={styles.label}>Genre: </Text>
                 <Picker 
                   style={styles.pickerInput}
-                  //selectedValue={}
+                  selectedValue={this.state.genre}
                   onValueChange={(genre)=>{this.setState({genre:genre})}}
                 >
                   <Picker.Item label={'Fiction'} value={'Fiction'} />
@@ -114,7 +137,7 @@ export default class EditBookScreen extends Component<Props> {
                 <Text style={styles.label}>Language: </Text>
                 <Picker 
                   style={styles.pickerInput}
-                  //selectedValue={}
+                  selectedValue={this.state.language}
                   onValueChange={(language)=>{this.setState({language:language})}}
                 >
                   <Picker.Item label={'English'} value={'English'} />
@@ -127,7 +150,7 @@ export default class EditBookScreen extends Component<Props> {
                 <Text style={styles.label}>Year: </Text>
                 <Picker 
                   style={styles.pickerInput}
-                  //selectedValue={}
+                  selectedValue={this.state.year}
                   onValueChange={(year)=>{this.setState({year:year})}}
                 >
                   {yearRange.map(item=>{return <Picker.Item label={item} value={item} />})}
@@ -137,8 +160,8 @@ export default class EditBookScreen extends Component<Props> {
                 <Text style={styles.label}>Condition: </Text>
                 <Picker 
                   style={styles.pickerInput}
-                  //selectedValue={}
-                  onValueChange={(language)=>{this.setState({language:language})}}
+                  selectedValue={this.state.condition}
+                  onValueChange={(condition)=>{this.setState({condition:condition})}}
                 >
                   <Picker.Item label={'Good'} value={'Good'} />
                   <Picker.Item label={'Fair'} value={'Fair'} />
@@ -151,18 +174,14 @@ export default class EditBookScreen extends Component<Props> {
                   style={styles.text} 
                   editable={true} 
                   multiline={true} 
-                  //value={} 
+                  value={this.state.description} 
                   placeholder={'Any additional comment?'}
                   placeholderTextColor={'#828282'}
-                  onChangeText={(description) => { this.setState({ description })}}></TextInput>
+                  onChangeText={(description) => { this.setState({ description:description })}}></TextInput>
             </View>
             <View style={styles.actions}>
               <TouchableOpacity style={styles.green}
-                onPress={()=>{
-                  //edit book
-                this.props.navigation.goBack()
-                this.props.navigation.getParam('thisProps').navigation.goBack()
-              }}
+                onPress={()=>{this._update()}}
             >
               <Text style={styles.actionText}>Update</Text>
             </TouchableOpacity>      

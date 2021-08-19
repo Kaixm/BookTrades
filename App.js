@@ -1,5 +1,5 @@
 import React from 'react';
-import { createAppContainer } from 'react-navigation';
+import { createAppContainer, createSwitchNavigator } from 'react-navigation';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
 import { createStackNavigator } from 'react-navigation-stack';
 
@@ -18,6 +18,7 @@ import StartTradeScreen from './src/screens/StartTradeScreen';
 import AddBookScreen from './src/screens/AddBookScreen';
 import EditBookScreen from './src/screens/EditBookScreen';
 import ViewProfileScreen from './src/screens/ViewProfileScreen';
+import { Alert, TouchableOpacity } from 'react-native';
 
 const TradeStack=createStackNavigator(
   {
@@ -58,24 +59,36 @@ const ProfileStack=createStackNavigator(
   }
 )
 
-const HomeDrawer=createBottomTabNavigator(
+const LoginStack=createStackNavigator(
   {
-    Trade: TradeStack,
-    Home: HomeStack,
-    Profile: ProfileStack,
+    Login: LoginScreen,
+    Register: RegisterScreen,
   },
   {
-    initialRouteName:'Home',
+    headerMode:'null',
+    initialRouteName:'Login',
+  }
+)
+
+const HomeTab=createBottomTabNavigator(
+  {
+    TradeStack: TradeStack,
+    HomeStack: HomeStack,
+    ProfileStack: ProfileStack,
+  },
+  {
+    initialRouteName:'HomeStack',
     backBehavior:'none',
-    order:['Trade','Home','Profile'],
+    order:['TradeStack','HomeStack','ProfileStack'],
     defaultNavigationOptions: ({ navigation }) => ({
       tabBarIcon: ({ focused, horizontal, tintColor }) => {
         const { routeName } = navigation.state;
         let iconName;
-        if (routeName==='Trade') iconName = 'shopping-outline';
-        if (routeName==='Home') iconName ='home-outline';
-        if (routeName==='Profile') iconName = 'clipboard-account-outline';
-        return <MaterialCommunityIcons name={iconName} size={25} color={tintColor} />;
+        let screenName;
+        if (routeName==='TradeStack') {iconName = 'shopping-outline'};
+        if (routeName==='HomeStack') {iconName ='home-outline'};
+        if (routeName==='ProfileStack') {iconName = 'clipboard-account-outline'};
+        return <MaterialCommunityIcons name={iconName} size={25} color={tintColor}/>;
       },
     }),
     tabBarOptions: {
@@ -93,20 +106,19 @@ const HomeDrawer=createBottomTabNavigator(
         height:60,
         paddingTop:5,
         paddingBottom:5,
-      }
+      },
     },
   }
 )
 
-const AppStack=createStackNavigator(
+const AppStack=createSwitchNavigator(
   {
-    Login: LoginScreen,
-    Register: RegisterScreen,
-    Home: HomeDrawer,
+    LoginStack: LoginStack,
+    HomeTab: HomeTab,
   },
   {
     headerMode:'none',
-    initialRouteName:'Login',
+    initialRouteName:'LoginStack',
   }
 )
 

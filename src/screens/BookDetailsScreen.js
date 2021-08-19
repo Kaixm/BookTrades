@@ -1,5 +1,5 @@
 import React,{Component} from "react";
-import { Text, StyleSheet, View, ScrollView, TextInput, TouchableOpacity, Modal, TouchableHighlight } from "react-native";
+import { Text, StyleSheet, View, ScrollView, TextInput, TouchableOpacity, Modal, TouchableHighlight, Alert } from "react-native";
 
 //import icons
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -7,17 +7,87 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 //import components
 import AppHeader from "../components/AppHeader";
 
+//import login user id
+import loginUserId from '../../LoginUserId';
+
+//server path
+let config=require('../../Config');
+
 export default class BookDetailsScreen extends Component<Props>{
   constructor(props){
     super(props);
     this.state={
-      userId:this.props.navigation.getParam('userId')?this.props.navigation.getParam('userId'):"",
-
-      bookId:this.props.navigation.getParam('bookId')?this.props.navigation.getParam('bookId'):"",
-      fromScreen:this.props.navigation.getParam('fromScreen')?this.props.navigation.getParam('fromScreen'):"",
+      bookId:this.props.navigation.getParam('bookId')?this.props.navigation.getParam('bookId'):null,
+      userId:this.props.navigation.getParam('userId')?this.props.navigation.getParam('userId'):null,
+      book:null,
+      user:null,
 
       deleteBoxVisible:false,
+      fromScreen:this.props.navigation.getParam('fromScreen')?this.props.navigation.getParam('fromScreen'):null,
     }
+    this._query = this._query.bind(this);
+    this._delete=this._delete.bind(this);
+  }
+
+  componentDidMount() {
+    this._query();
+  }
+
+  async _query() {
+    let url1 = config.settings.serverPath + '/api/book/' + this.state.bookId;
+    await fetch(url1)
+      .then(response => {
+        if (!response.ok) {
+          Alert.alert('Error', response.status.toString());
+          throw Error('Error ' + response.status);}
+        return response.json();})
+      .then(book => {
+        this.setState({book});})
+      .catch(error => {
+        console.error(error);});
+
+    let url2 = config.settings.serverPath + '/api/user/' + this.state.userId;
+    await fetch(url2)
+      .then(response => {
+        if (!response.ok) {
+          Alert.alert('Error', response.status.toString());
+          throw Error('Error ' + response.status);}
+        return response.json();})
+      .then(user => {
+        this.setState({user});})
+      .catch(error => {
+        console.error(error);});
+  }
+
+  async _delete() {
+    let url = config.settings.serverPath + '/api/book/' + this.state.bookId;
+    await fetch(url, { 
+      method: 'DELETE',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        bookId: this.state.bookId,
+      }),
+    })
+    .then(response => {
+      if (!response.ok) {
+        Alert.alert('Error', response.status.toString());
+        throw Error('Error ' + response.status);
+      }
+      return response.json();
+    })
+    .then(responseJson => {
+      if (responseJson.affected == 0) {
+        Alert.alert('Error deleting record');
+      }
+      this.props.navigation.getParam('refresh')();
+      this.props.navigation.goBack();
+    })
+    .catch(error => {
+      console.error(error);
+    });
   }
 
   render(){
@@ -36,37 +106,37 @@ export default class BookDetailsScreen extends Component<Props>{
           >
             <View>
               <MaterialCommunityIcons  style={styles.profilePic}
-                name={this.state.gender!=""?(this.state.gender=="Male"?'face':'face-woman'):''} 
+                name={this.state.user?(this.state.user.gender=="Male"?'face':'face-woman'):''} 
                 size={50} 
-                color={this.state.gender!=""?(this.state.gender=="Male"?'#00BECC':'#EA3C53'):''}>
+                color={this.state.user?(this.state.user.gender=="Male"?'#00BECC':'#EA3C53'):''}>
               </MaterialCommunityIcons>
-              <Text style={styles.name} editable={false}>{}</Text>
+              <Text style={styles.name} editable={false}>{this.state.user?this.state.user.userName:null}</Text>
             </View>
           </TouchableHighlight>
           <View style={styles.details}>
             <View style={styles.detail}>
               <Text style={styles.label}>Book Name: </Text>
-              <TextInput style={styles.text} editable={false}>{}</TextInput>
+              <TextInput style={styles.text} editable={false}>{this.state.book?this.state.book.bookName:null}</TextInput>
             </View>
             <View style={styles.detail}>
               <Text style={styles.label}>Genre: </Text>
-              <TextInput style={styles.text} editable={false}>{}</TextInput>
+              <TextInput style={styles.text} editable={false}>{this.state.book?this.state.book.genre:null}</TextInput>
             </View>
             <View style={styles.detail}>
               <Text style={styles.label}>Language: </Text>
-              <TextInput style={styles.text} editable={false}>{}</TextInput>
+              <TextInput style={styles.text} editable={false}>{this.state.book?this.state.book.language:null}</TextInput>
             </View>
             <View style={styles.detail}>
               <Text style={styles.label}>Year: </Text>
-              <TextInput style={styles.text} editable={false}>{}</TextInput>
+              <TextInput style={styles.text} editable={false}>{this.state.book?this.state.book.year:null}</TextInput>
             </View>
             <View style={styles.detail}>
               <Text style={styles.label}>Condition: </Text>
-              <TextInput style={styles.text} editable={false}>{}</TextInput>
+              <TextInput style={styles.text} editable={false}>{this.state.book?this.state.book.condition:null}</TextInput>
             </View>
             <View style={styles.detail}>
               <Text style={styles.label}>Description: </Text>
-              <TextInput style={styles.description} editable={false} multiline={true}>{}</TextInput>
+              <TextInput style={styles.description} editable={false} multiline={true}>{this.state.book?this.state.book.description:null}</TextInput>
             </View>
           </View>
           {this.state.fromScreen=='Home'
@@ -76,7 +146,10 @@ export default class BookDetailsScreen extends Component<Props>{
                 style={styles.trade}
                 onPress={()=>{
                   this.props.navigation.navigate('StartTrade',{
-                    thisProps:this.props
+                    bookId:this.state.bookId,
+                    userId:this.state.userId,
+                    thisProps:this.props,
+                    refreshHome:this.props.navigation.getParam('refresh')
                   })
                 }}
               >
@@ -97,16 +170,10 @@ export default class BookDetailsScreen extends Component<Props>{
               <TouchableOpacity 
                 style={styles.green}
                 onPress={()=>{this.props.navigation.navigate('EditBook',{
-                  id:this.state.id,
-                  gender:this.state.gender,
-                  owner:this.state.owner,
-                  name:this.state.name,
-                  genre:this.state.genre,
-                  language:this.state.language,
-                  year:this.state.year,
-                  description:this.state.description,
-
+                  bookId:this.state.bookId,
                   thisProps:this.props,
+                  refresh:this._query,
+                  refreshProfile:this.props.navigation.getParam('refresh')
                 })}}
               >
                 <Text style={styles.actionText}>Edit</Text>
@@ -132,9 +199,8 @@ export default class BookDetailsScreen extends Component<Props>{
                 <TouchableOpacity
                   style={styles.popoutActionOutline}
                   onPress={()=>{
-                    /*delete book*/
                     this.setState({deleteBoxVisible:false})
-                    this.props.navigation.goBack()
+                    this._delete()
                   }}
                 >
                   <Text style={styles.popoutSubmitText}>Yes</Text>

@@ -9,41 +9,29 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import AppHeader from "../components/AppHeader";
 import BookContainer from "../components/BookContainer";
 
-//test data
-const testData=[
-  {
-    title:"You Give",
-    data:[
-      {
-        id:'1',
-        name:'Book 1'
-      },
-    ]
-  },
-  {
-    title:"You Receive",
-    data:[
-      {
-        id:'5',
-        name:'Book 3'
-      },
-    ]
-  }
-]
+//import login user id
+import loginUserId from '../../LoginUserId';
+
+//server path
+let config=require('../../Config');
 
 export default class TradeDetailsScreen extends Component<Props>{
   constructor(props){
     super(props);
     this.state={
-      tradeId:'',
-      userId:'',
-      
-      date:this.props.navigation.getParam('date')?this.props.navigation.getParam('date'):"",
-      status:this.props.navigation.getParam('status')?this.props.navigation.getParam('status'):"",
+      loginUserId:loginUserId.getUserId(),
+      tradeId:this.props.navigation.getParam('tradeId')?this.props.navigation.getParam('tradeId'):null,
+      date:this.props.navigation.getParam('date')?this.props.navigation.getParam('date'):null,
+      status:this.props.navigation.getParam('status')?this.props.navigation.getParam('status'):null,
       statusColor:this.props.navigation.getParam('status')?(this.props.navigation.getParam('status')=="Done"?'#4CBB17':(this.props.navigation.getParam('status')=="Exchanging"?'#FCE205':'#B80F0A')):'#FAFAFA',
-      
-      bookId:this.props.navigation.getParam('bookId')?this.props.navigation.getParam('bookId'):"",
-      bookName:this.props.navigation.getParam('bookName')?this.props.navigation.getParam('bookName'):"",
+      user1Id:this.props.navigation.getParam('user1Id')?this.props.navigation.getParam('user1Id'):null,
+      user2Rate:this.props.navigation.getParam('user2Rate')?this.props.navigation.getParam('user2Rate'):0,
+      userId:this.props.navigation.getParam('userId')?this.props.navigation.getParam('userId'):null,
+      userName:this.props.navigation.getParam('userName')?this.props.navigation.getParam('userName'):null,
+      gender:this.props.navigation.getParam('gender')?this.props.navigation.getParam('gender'):null,
+
+      books:[],
+      tradeDetails:[],
 
       declineBoxVisible:false,
       rateBoxVisible:false,
@@ -57,6 +45,132 @@ export default class TradeDetailsScreen extends Component<Props>{
       rateMehColor:'#FAFAFA',
       rateSmileColor:'#FAFAFA',
     }
+    this._query = this._query.bind(this);
+    this._delete = this._delete.bind(this);
+  }
+
+  componentDidMount() {
+    this._query();
+  }
+
+  async _query() {
+    let url1 = config.settings.serverPath + '/api/book';
+    await fetch(url1)
+    .then((response) => {
+      if(!response.ok) {
+        Alert.alert('Error', response.status.toString());  
+        throw Error('Error ' + response.status);
+      }
+      return response.json()  
+    })
+    .then((books) => {  
+      this.setState({books});
+    })
+    .catch((error) => {
+      console.log(error)
+    });
+
+    let url2 = config.settings.serverPath + '/api/tradeDetails';
+    await fetch(url2)
+    .then((response) => {
+      if(!response.ok) {
+        Alert.alert('Error', response.status.toString());  
+        throw Error('Error ' + response.status);
+      }
+      return response.json()  
+    })
+    .then((tradeDetails) => {  
+      this.setState({tradeDetails});
+    })
+    .catch((error) => {
+      console.log(error)
+    });
+  }
+
+  async _delete() {
+    let url1 = config.settings.serverPath + '/api/trade/' + this.state.tradeId;
+    await fetch(url1, { 
+      method: 'DELETE',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        tradeId: this.state.tradeId,
+      }),
+    })
+    .then(response => {
+      if (!response.ok) {
+        Alert.alert('Error', response.status.toString());
+        throw Error('Error ' + response.status);
+      }
+      return response.json();
+    })
+    .then(responseJson => {
+      if (responseJson.affected == 0) {
+        Alert.alert('Error deleting record');
+      }
+    })
+    .catch(error => {
+      console.error(error);
+    });
+
+    for(let i=0;i<this.state.tradeDetails.length;i++){
+      if(this.state.tradeDetails[i].tradeId==this.state.tradeId){
+        await fetch(config.settings.serverPath + '/api/tradeDetails/' + this.state.tradeDetails[i].tradeDetailsId, { 
+          method: 'DELETE',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            tradeDetailsId: this.state.tradeDetailsId,
+          }),
+        })
+        .then(response => {
+          if (!response.ok) {
+            Alert.alert('Error', response.status.toString());
+            throw Error('Error ' + response.status);
+          }
+          return response.json();
+        })
+        .then(responseJson => {
+          if (responseJson.affected == 0) {
+            Alert.alert('Error deleting record');
+          }
+        })
+        .catch(error => {
+          console.error(error);
+        });
+      }
+    }
+    this.props.navigation.getParam('refresh')();
+    this.props.navigation.goBack();
+  }
+
+  filter(){
+    let filtered=[];
+    let giveData=[];
+    let receiveData=[];
+    for(let i=0;i<this.state.tradeDetails.length;i++){
+      if(this.state.tradeDetails[i].tradeId==this.state.tradeId){
+        for(let j=0;j<this.state.books.length;j++){
+          if(this.state.tradeDetails[i].bookId==this.state.books[j].bookId){
+            if(this.state.tradeDetails[i].userId==this.state.loginUserId){
+              giveData.push(this.state.books[j]);
+              break;
+            }
+            else if(this.state.tradeDetails[i].userId==this.state.userId){
+              receiveData.push(this.state.books[j]);
+              break;
+            }
+          }
+        }
+      }
+    }
+    filtered.push({title:'You Give',data:[...giveData]})
+    filtered.push({title:'You Receive',data:[...receiveData]})
+    return filtered;
   }
 
   render(){
@@ -72,18 +186,19 @@ export default class TradeDetailsScreen extends Component<Props>{
           >
             <View>
               <MaterialCommunityIcons  style={styles.profilePic}
-                name={this.state.gender!=""?(this.state.gender=="Male"?'face':'face-woman'):''} 
+                name={this.state.gender?(this.state.gender=="Male"?'face':'face-woman'):''} 
                 size={50} 
-                color={this.state.gender!=""?(this.state.gender=="Male"?'#00BECC':'#EA3C53'):''}>
+                color={this.state.gender?(this.state.gender=="Male"?'#00BECC':'#EA3C53'):''}>
               </MaterialCommunityIcons>
-              <Text style={styles.name} editable={false}>{this.state.name}</Text>
+              <Text style={styles.name} editable={false}>{this.state.userName}</Text>
             </View>
           </TouchableHighlight>
         <Text style={styles.text}>{this.state.date}</Text>
         <Text style={[styles.text,{color:this.state.statusColor,fontFamily:'Raleway-Bold'}]}>{this.state.status}</Text>
         <SectionList
           style={styles.giveReceiveContainer}
-          sections={testData}
+          sections={this.filter()}
+          keyExtractor={item=>item.tradeId}
           renderSectionHeader={({section:{title}})=>{
             return(
               <Text style={styles.subheader}>{title}</Text>
@@ -92,53 +207,90 @@ export default class TradeDetailsScreen extends Component<Props>{
           renderItem={({item})=>{
             return(
               <BookContainer
-                bookId={item.id}
-                bookName={item.name}
+                bookId={item.bookId}
+                bookName={item.bookName}
+                userId={item.userId}
                 fromScreen={'Trade'}
                 thisProps={this.props}
               ></BookContainer>
             )
           }}
         ></SectionList>
-        {this.state.status=="Done"
-        ?null
-        :(this.state.status=="Exchanging"
+        {
+          console.log(this.state.loginUserId+" - "+this.state.user1Id),
+          this.state.loginUserId==this.state.user1Id
           ?(
-            <View style={styles.actions}>
-              <TouchableOpacity 
-                style={styles.red}
-                onPress={()=>{this.setState({cancelBoxVisible:true})}}
-              >
-                <Text style={styles.actionText}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={styles.green}
-                onPress={()=>{this.setState({rateBoxVisible:true})}}
-              >
-                <Text style={styles.actionText}>Rate & Complete</Text>
-              </TouchableOpacity>      
-            </View>
+            this.state.status=='Done'
+            ?(
+              console.log(this.state.user2Rate),
+              this.state.user2Rate==0
+              ?(
+                console.log('aa'),
+                <View style={styles.actions}>
+                  <TouchableOpacity 
+                    style={styles.singleGreen}
+                    onPress={()=>{this.setState({rateBoxVisible:true})}}
+                  >
+                    <Text style={styles.actionText}>Rate</Text>
+                  </TouchableOpacity>
+                </View>
+              )
+              :null
+            )
+            :(
+              <View style={styles.actions}>
+                <TouchableOpacity 
+                  style={styles.singleRed}
+                  onPress={()=>{this.setState({cancelBoxVisible:true})}}
+                >
+                  <Text style={styles.actionText}>Cancel</Text>
+                </TouchableOpacity> 
+              </View>
+            )
           )
           :(
-            <View style={styles.actions}>
-              <TouchableOpacity 
-                style={styles.red}
-                onPress={()=>{this.setState({declineBoxVisible:true})}}
-              >
-                <Text style={styles.actionText}>Decline</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={styles.green}
-                onPress={()=>{
-                  /*accept trade change state to Exchanging*/
-                  this.props.navigation.goBack()
-                }}
-              >
-                <Text style={styles.actionText}>Accept</Text>
-              </TouchableOpacity>      
-            </View>
+            this.state.status=='Done'
+            ?null
+            :(
+              this.state.status=='Exchanging'
+              ?(
+                <View style={styles.actions}>
+                  <TouchableOpacity 
+                    style={styles.red}
+                    onPress={()=>{this.setState({cancelBoxVisible:true})}}
+                  >
+                    <Text style={styles.actionText}>Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={styles.green}
+                    onPress={()=>{this.setState({rateBoxVisible:true})}}
+                  >
+                    <Text style={styles.actionText}>Rate & Complete</Text>
+                  </TouchableOpacity>      
+                </View>
+              )
+              :(
+                <View style={styles.actions}>
+                  <TouchableOpacity 
+                    style={styles.red}
+                    onPress={()=>{this.setState({declineBoxVisible:true})}}
+                  >
+                    <Text style={styles.actionText}>Decline</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={styles.green}
+                    onPress={()=>{
+                      /*accept trade change state to Exchanging*/
+                      this.props.navigation.goBack()
+                    }}
+                  >
+                    <Text style={styles.actionText}>Accept</Text>
+                  </TouchableOpacity>      
+                </View>
+              )
+            )
           )
-        )}
+        }
 
         {/*pop out box for decine trade request*/}
         <Modal visible={this.state.declineBoxVisible}>
@@ -156,9 +308,8 @@ export default class TradeDetailsScreen extends Component<Props>{
                 <TouchableOpacity
                   style={styles.popoutActionOutline}
                   onPress={()=>{
-                    /*delete trade*/
+                    this._delete()
                     this.setState({declineBoxVisible:false})
-                    this.props.navigation.goBack()
                   }}
                 >
                   <Text style={styles.popoutSubmitText}>Yes</Text>
@@ -184,9 +335,8 @@ export default class TradeDetailsScreen extends Component<Props>{
                 <TouchableOpacity
                   style={styles.popoutActionOutline}
                   onPress={()=>{
-                    /*delete trade*/
+                    this._delete()
                     this.setState({cancelBoxVisible:false})
-                    this.props.navigation.goBack()
                   }}
                 >
                   <Text style={styles.popoutSubmitText}>Yes</Text>
@@ -333,6 +483,20 @@ const styles = StyleSheet.create({
   },
   green:{
     width:'60%',
+    backgroundColor:'#4CBB17',
+    borderRadius:5,
+    alignItems:'center',
+    padding:10,
+  },
+  singleRed:{
+    width:'100%',
+    backgroundColor:'#B80F0A',
+    borderRadius:5,
+    alignItems:'center',
+    padding:10,
+  },
+  singleGreen:{
+    width:'100%',
     backgroundColor:'#4CBB17',
     borderRadius:5,
     alignItems:'center',

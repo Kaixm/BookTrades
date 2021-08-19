@@ -9,10 +9,12 @@ export default class BookContainer extends Component<Props>{
   constructor(props){
     super(props);
     this.state={
-      bookId:this.props.bookId?this.props.bookId:"",
-      bookName:this.props.bookName?this.props.bookName:"",
-      fromScreen:this.props.fromScreen?this.props.fromScreen:"",
-      thisProps:this.props.thisProps?this.props.thisProps:""
+      bookId:this.props.bookId?this.props.bookId:null,
+      userId:this.props.userId?this.props.userId:null,
+      bookName:this.props.bookName?this.props.bookName:null,
+      fromScreen:this.props.fromScreen?this.props.fromScreen:null,
+      thisProps:this.props.thisProps?this.props.thisProps:null,
+      refresh:this.props.refresh?this.props.refresh:null,
     }
   }
 
@@ -22,7 +24,9 @@ export default class BookContainer extends Component<Props>{
         underlayColor={'#424242'}
           onPress={()=>this.props.thisProps.navigation.navigate('BookDetails',{
             bookId:this.state.bookId,
-            fromScreen:this.state.fromScreen
+            userId:this.state.userId,
+            fromScreen:this.state.fromScreen,
+            refresh:this.state.refresh
           })}  
       >
         <View style={styles.book}>

@@ -1,32 +1,50 @@
 import React,{Component} from "react";
-import { Text, StyleSheet, View, TouchableOpacity, TextInput } from "react-native";
+import { Text, StyleSheet, View, TouchableOpacity, TextInput, Modal } from "react-native";
 import { StackActions,NavigationActions } from "react-navigation";
 
 //import icons
 import Feather from 'react-native-vector-icons/Feather';
 
-//prevent HOME back to LOGIN once back button pressed
-const resetAction = StackActions.reset({
-  index: 0,
-  actions: [NavigationActions.navigate({ routeName: 'Home' })],
-});
+//import login user id
+import loginUserId from '../../LoginUserId';
 
+//server path
+let config=require('../../Config');
 
 export default class LoginScreen extends Component<Props>{
-  state = {
-    email: '',
-    password: ''
- }
- handleEmail = (text) => {
-    this.setState({ email: text })
- }
- handlePassword = (text) => {
-    this.setState({ password: text })
- }
- login = (email, pass) => {
-    alert('email: ' + email + ' password: ' + pass)
- }
+  constructor(props) {
+    super(props);
+    this.state = {
+      users: [],
+      email:'chiajinwen@gmail.com',
+      password:'chiajinwen',
 
+      loginFailBoxVisible:false,
+    };
+    this._query = this._query.bind(this);
+  }
+
+  componentDidMount() {
+    this._query();
+  }
+
+  _query() {
+    let url = config.settings.serverPath + '/api/user';
+    fetch(url)
+    .then((response) => {
+      if(!response.ok) {
+        Alert.alert('Error', response.status.toString());  
+        throw Error('Error ' + response.status);
+      }
+      return response.json()  
+    })
+    .then((users) => {  
+      this.setState({users});
+    })
+    .catch((error) => {
+      console.log(error)
+    });
+  }
 
   render(){
     return(
@@ -37,28 +55,61 @@ export default class LoginScreen extends Component<Props>{
           placeholder = "Email"
           placeholderTextColor = "#616161"
           autoCapitalize = "none"
-          onChangeText = {this.handleEmail}
+          onChangeText = {(email)=>this.setState({email:email})}
+          value={this.state.email}
         />
         <TextInput style = {styles.input}
           underlineColorAndroid = "transparent"
           placeholder = "Password"
           placeholderTextColor = "#616161"
           autoCapitalize = "none"
-          onChangeText = {this.handlePassword}
+          onChangeText = {(password)=>this.setState({password:password})}
+          value={this.state.password}
         />
 
-        <TouchableOpacity 
-         style={styles.login}
-        onPress={()=>{this.props.navigation.dispatch(resetAction);}}
+        <TouchableOpacity
+          style={styles.login}
+          onPress={()=>{
+            for(let i=0;i<this.state.users.length;i++){
+              if(this.state.email==this.state.users[i].email&&this.state.password==this.state.users[i].password){
+                this.props.navigation.navigate('Home',{},loginUserId.setUserId(this.state.users[i].userId));
+                break;
+              }
+            }
+            this.setState({loginFailBoxVisible:true})
+          }}
         >
         <Text style={styles.loginText}>Login</Text></TouchableOpacity>
         
         <TouchableOpacity 
-        style={styles.register}
-        onPress={()=>this.props.navigation.navigate('Register')}
+          style={styles.register}
+          onPress={()=>this.props.navigation.navigate('Register')}
         >
         <Text style={styles.registerText}>Register</Text></TouchableOpacity>
         
+        {/*pop out box for login fail*/}
+        <Modal visible={this.state.loginFailBoxVisible}>
+          <View>
+            <View style={styles.popoutBoxBackground}></View>
+            <View style={styles.popoutBox}>
+              <Text style={styles.popoutBoxTitle}>Login Fail</Text>
+              <View style={styles.popoutActions}>
+                <TouchableOpacity
+                  style={styles.popoutActionOutline}
+                  onPress={()=>{
+                    this.setState({
+                      email:'',
+                      password:'',
+                      loginFailBoxVisible:false,
+                    })
+                  }}
+                >
+                  <Text style={styles.popoutSubmitText}>OK</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
         </View>
     );
   }
@@ -121,4 +172,57 @@ const styles = StyleSheet.create({
     padding:10,
     width:'60%'
   },
+  popoutBoxBackground:{
+    height:'100%',
+    backgroundColor:'#424242',
+  },
+  popoutBox:{
+    flexDirection:'column',
+    width:'80%',
+    backgroundColor:'#212121',
+    borderRadius:10,
+    position:'absolute',
+    marginLeft:'10%',
+    marginRight:'10%',
+    marginTop:'50%',
+    marginBottom:'50%'
+  },
+  popoutBoxTitle:{
+    width:'100%',
+    fontFamily:'Raleway-Bold',
+    fontSize:15,
+    color:'#FAFAFA',
+    textAlign:'center',
+    padding:50,
+    paddingBottom:20,
+  },
+  rateIcons:{
+    width:'100%',
+    flexDirection:'row',
+    padding:50,
+    paddingBottom:20,
+    justifyContent:'space-between'
+  },
+  popoutActions:{
+    width:'100%',
+    flexDirection:'row',
+    padding:20,
+    justifyContent:'space-between'
+  },
+  popoutActionOutline:{
+    width:'100%',
+    borderRadius:5,
+    alignItems:'center',
+    padding:10,
+  },
+  popoutBackText:{
+    fontFamily:'Raleway-Bold',
+    fontSize:15,
+    color:'#B80F0A',
+  },
+  popoutSubmitText:{
+    fontFamily:'Raleway-Bold',
+    fontSize:15,
+    color:'#4CBB17',
+  }
 });

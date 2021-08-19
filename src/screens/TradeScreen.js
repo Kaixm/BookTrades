@@ -7,66 +7,137 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 //import components
 import AppHeader from "../components/AppHeader";
 
-//test data
-const tradeData=[
-  {
-    id:"1",
-    name:"Lee Siang Wei",
-    date:"06/08/2021",
-    status:"Requesting",
-    gender:"Male",
-  },
-  {
-    id:"2",
-    name:"Lee Siang Wei",
-    date:"06/08/2021",
-    status:"Exchanging",
-    gender:"Male",
-  },
-  {
-    id:"3",
-    name:"Lee Siang Wei",
-    date:"06/08/2021",
-    status:"Done",
-    gender:"Female",
-  },
-];
+//import login user id
+import loginUserId from '../../LoginUserId';
+
+//server path
+let config=require('../../Config');
 
 export default class TradeScreen extends Component<Props>{
   constructor(props){
     super(props);
     this.state={
-
+      loginUserId:loginUserId.getUserId(),
+      trades:[],
+      users:[]
     }
+    this._query = this._query.bind(this);
   }
 
+  componentDidMount() {
+    this._query();
+  }
+
+  async _query() {
+    let url1 = config.settings.serverPath + '/api/trade';
+    await fetch(url1)
+    .then((response) => {
+      if(!response.ok) {
+        Alert.alert('Error', response.status.toString());  
+        throw Error('Error ' + response.status);
+      }
+      return response.json()  
+    })
+    .then((trades) => {  
+      this.setState({trades});
+    })
+    .catch((error) => {
+      console.log(error)
+    });
+
+    let url2 = config.settings.serverPath + '/api/user';
+    await fetch(url2)
+    .then((response) => {
+      if(!response.ok) {
+        Alert.alert('Error', response.status.toString());  
+        throw Error('Error ' + response.status);
+      }
+      return response.json()  
+    })
+    .then((users) => {  
+      this.setState({users});
+    })
+    .catch((error) => {
+      console.log(error)
+    });
+  }
+
+  filter(){
+    let filtered=[];
+    for(let i=0;i<this.state.trades.length;i++){
+      if(this.state.trades[i].user1Id==this.state.loginUserId){
+        for(let j=0;j<this.state.users.length;j++){
+          if(this.state.trades[i].user2Id==this.state.users[j].userId){
+            filtered.push({
+              tradeId:this.state.trades[i].tradeId,
+              date:this.state.trades[i].date,
+              status:this.state.trades[i].status,
+              user1Id:this.state.trades[i].user1Id,
+              user2Rate:this.state.trades[i].user2Rate,
+              userId:this.state.trades[i].user2Id,
+              userName:this.state.users[j].userName,
+              gender:this.state.users[j].gender,
+            })
+            break;
+          }
+        }
+      }
+      else if(this.state.trades[i].user2Id==this.state.loginUserId){
+        for(let j=0;j<this.state.users.length;j++){
+          if(this.state.trades[i].user1Id==this.state.users[j].userId){
+            filtered.push({
+              tradeId:this.state.trades[i].tradeId,
+              date:this.state.trades[i].date,
+              status:this.state.trades[i].status,
+              user1Id:this.state.trades[i].user1Id,
+              user2Rate:this.state.trades[i].user2Rate,
+              userId:this.state.trades[i].user1Id,
+              userName:this.state.users[j].userName,
+              gender:this.state.users[j].gender,
+            })
+            break;
+          }
+        }
+      }
+    }
+    return filtered;
+  }
+  
   render(){
     return(
       <View style={styles.container}>
         <AppHeader thisProps={this.props}></AppHeader>
         <FlatList
-          data={tradeData}
-          keyExtractor={item=>item.id}
+          data={this.filter()}
+          keyExtractor={item=>item.tradeId}
           renderItem={({item})=>{
             return(
               <TouchableHighlight style={styles.tradeContainer}
                 underlayColor={'#616161'}
                 onPress={()=>this.props.navigation.navigate('TradeDetails',{
-                  tradeId:item.id,
+                  tradeId:item.tradeId,
+                  date:item.date,
+                  status:item.status,
+                  user1Id:item.user1Id,
+                  user2Rate:item.user2Rate,
+                  userId:item.userId,
+                  userName:item.userName,
+                  gender:item.gender,
+                  refresh:this._query,
                 })}  
               >
                 <View style={styles.trade}>
                   <View style={styles.profilePic}>
                     <MaterialCommunityIcons 
-                      name={item.gender!=""?(item.gender=="Male"?'face':'face-woman'):''} 
+                      name={item.gender?(item.gender=="Male"?'face':'face-woman'):''} 
                       size={70} 
-                      color={item.gender!=""?(item.gender=="Male"?'#00BECC':'#EA3C53'):''}>
+                      color={item.gender?(item.gender=="Male"?'#00BECC':'#EA3C53'):''}>
                     </MaterialCommunityIcons>
                   </View>
                   <View style={styles.details}>
                     <View style={styles.detail}>
                       <Text style={styles.label}>Name: </Text>
-                      <Text style={styles.text}>{item.name}</Text>
+                      <Text style={styles.text}>{item.userName}</Text>
                     </View>
                     <View style={styles.detail}>
                       <Text style={styles.label}>Date: </Text>

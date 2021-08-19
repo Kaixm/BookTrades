@@ -1,5 +1,5 @@
 import React,{Component} from "react";
-import { Text, StyleSheet, View, ScrollView, FlatList, TouchableHighlight, TouchableOpacity } from "react-native";
+import { Text, StyleSheet, View, ScrollView, FlatList, TouchableHighlight, TouchableOpacity,Alert } from "react-native";
 
 //import icons
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
@@ -7,13 +7,190 @@ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 //import components
 import AppHeader from "../components/AppHeader";
 
+//import login user id
+import loginUserId from '../../LoginUserId';
+
+//server path
+let config=require('../../Config');
+
 export default class StartTradeScreen extends Component<Props>{
   constructor(props){
     super(props);
     this.state={
+      loginUserId:loginUserId.getUserId(),
+      bookId:this.props.navigation.getParam('bookId')?this.props.navigation.getParam('bookId'):null,
+      userId:this.props.navigation.getParam('userId')?this.props.navigation.getParam('userId'):null,
+      books:[],
+      tradeDetails:[],
+
       selected:[],
       selectedNumber:0,
     }
+    this._query = this._query.bind(this);
+    this._insert = this._insert.bind(this);
+  }
+
+  componentDidMount() {
+    this._query();
+  }
+
+  async _query() {
+    let url1 = config.settings.serverPath + '/api/book';
+    await fetch(url1)
+    .then((response) => {
+      if(!response.ok) {
+        Alert.alert('Error', response.status.toString());  
+        throw Error('Error ' + response.status);
+      }
+      return response.json()  
+    })
+    .then((books) => {  
+      this.setState({books});
+    })
+    .catch((error) => {
+      console.log(error)
+    });
+
+    let url2 = config.settings.serverPath + '/api/tradeDetails';
+    await fetch(url2)
+    .then((response) => {
+      if(!response.ok) {
+        Alert.alert('Error', response.status.toString());  
+        throw Error('Error ' + response.status);
+      }
+      return response.json()  
+    })
+    .then((tradeDetails) => {  
+      this.setState({tradeDetails});
+    })
+    .catch((error) => {
+      console.log(error)
+    });
+  }
+
+  _insert() {
+    let url1 = config.settings.serverPath + '/api/trade';
+    fetch(url1, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        user1Id: this.state.loginUserId,
+        user2Id: this.state.userId,
+        date: (new Date().getDate()+1)+"/"+(new Date().getMonth()+1)+"/"+(new Date().getFullYear())
+      }),
+    }).then((response) => {
+      if(!response.ok) {
+        Alert.alert('Error', response.status.toString());
+        throw Error('Error ' + response.status);
+      }
+      return response.json()
+    }).then((responseJson) => {
+      if(responseJson.affected > 0) {
+        Alert.alert('Request sent');
+      }
+      else {
+        console.log('respond')
+        console.log(responseJson.affected);
+        Alert.alert('Error saving record');
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+
+    let url2 = config.settings.serverPath + '/api/tradeDetails';
+    fetch(url2, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        tradeId: this.state.tradeDetails[this.state.tradeDetails.length-1]+1,
+        userId: this.state.userId,
+        bookId: this.state.bookId,
+      }),
+    }).then((response) => {
+      if(!response.ok) {
+        Alert.alert('Error', response.status.toString());
+        throw Error('Error ' + response.status);
+      }
+      return response.json()
+    }).then((responseJson) => {
+      if(responseJson.affected > 0) {
+        Alert.alert('Request sent');
+      }
+      else {
+        console.log('respond')
+        console.log(responseJson.affected);
+        Alert.alert('Error saving record');
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+
+    for(let i=0;i<this.state.selected.length;i++){
+      fetch(config.settings.serverPath + '/api/tradeDetails', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          tradeId: this.state.tradeDetails[this.state.tradeDetails.length-1]+1,
+          userId: this.state.loginUserId,
+          bookId: this.state.selected[i],
+        }),
+      }).then((response) => {
+        if(!response.ok) {
+          Alert.alert('Error', response.status.toString());
+          throw Error('Error ' + response.status);
+        }
+        return response.json()
+      }).then((responseJson) => {
+        if(responseJson.affected > 0) {
+          Alert.alert('Request sent');
+        }
+        else {
+          console.log('respond')
+          console.log(responseJson.affected);
+          Alert.alert('Error saving record');
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+    }
+    //figure out here
+    this.props.navigation.getParam('refresh')?this.props.navigation.getParam('refresh'):null;
+    this.props.navigation.getParam('refreshHome')?this.props.navigation.getParam('refreshHome'):null;
+    //
+    this.props.navigation.goBack(),
+    this.props.navigation.getParam('thisProps').navigation.goBack()
+    
+  }
+
+  filter(){
+    let filtered=[];
+    for(let i=0;i<this.state.books.length;i++){
+      if(this.state.books[i].userId==this.state.loginUserId){
+        var traded=false;
+        for(let j=0;j<this.state.tradeDetails.length;j++){
+          if(this.state.books[i].bookId==this.state.tradeDetails[j].bookId){
+            traded=true;
+            break;
+          }
+        }
+        if(traded==false){
+          filtered.push(this.state.books[i]);
+        }
+      }
+    }
+    return filtered;
   }
 
   render(){
@@ -23,26 +200,26 @@ export default class StartTradeScreen extends Component<Props>{
         <Text style={styles.title}>Select book(s) to give!</Text>
         <FlatList
           style={styles.list}
-          data={testData}
+          data={this.filter()}
           keyExtractor={item=>item.id}
           renderItem={({item})=>{
             return(
-              <TouchableHighlight style={[styles.bookContainer,{backgroundColor:this.state.selected.includes(item.id)?'#424242':'transparent'}]}
+              <TouchableHighlight style={[styles.bookContainer,{backgroundColor:this.state.selected.includes(item.bookId)?'#424242':'transparent'}]}
                   underlayColor={'#424242'}
                   onPress={()=>{
-                    this.state.selected.includes(item.id)
-                    ?this.state.selected.splice(this.state.selected.indexOf(item.id),1)
-                    :this.state.selected.push(item.id)
+                    this.state.selected.includes(item.bookId)
+                    ?this.state.selected.splice(this.state.selected.indexOf(item.bookId),1)
+                    :this.state.selected.push(item.bookId)
                     this.setState({
                       selected:[...this.state.selected],
                       selectedNumber:[...this.state.selected].length
                     })
-                    //add to selected
+                    
                   }}  
               >
                   <View style={styles.book}>
                     <View style={styles.bookIcon}><FontAwesome5 name={'book'} size={25} color={'#FAFAFA'}></FontAwesome5></View>
-                    <Text style={styles.bookName}>{item.name}</Text>
+                    <Text style={styles.bookName}>{item.bookName}</Text>
                   </View>
               </TouchableHighlight>
             )
@@ -55,12 +232,7 @@ export default class StartTradeScreen extends Component<Props>{
             style={styles.green}
             onPress={()=>{
               this.state.selectedNumber>0
-              ?(
-                //add to trade with status Requesting
-                //remove the selected book from repo
-                this.props.navigation.goBack(),
-                this.props.navigation.getParam('thisProps').navigation.goBack()
-              )
+              ?this._insert()
               :null
             }}
           >

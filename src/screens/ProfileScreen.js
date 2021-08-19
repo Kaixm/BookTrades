@@ -10,32 +10,93 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AppHeader from "../components/AppHeader";
 import BookContainer from "../components/BookContainer";
 
-//prevent LOGIN back to PROFILE once back button pressed
-const resetAction = StackActions.reset({
-  index: 0,
-  actions: [NavigationActions.navigate({ routeName: 'Login' })],
-});
+//import login user id
+import loginUserId from '../../LoginUserId';
 
-//testData
-const testData=[
-  {
-    id:'1',
-    name:'Book 1'
-  },
-  {
-    id:'2',
-    name:'Book 2'
-  },
-]
+//server path
+let config=require('../../Config');
 
 export default class ProfileScreen extends Component<Props>{
   constructor(props){
     super(props);
     this.state={
-      id:'',
+      loginUserId:loginUserId.getUserId(),
+      books:[],
+      tradeDetails:[],
 
       logoutBoxVisible:false,
     }
+    this._query = this._query.bind(this);
+  }
+
+  componentDidMount() {
+    this._query();
+  }
+
+  async _query() {
+    let url1 = config.settings.serverPath + '/api/user/' + this.state.loginUserId;
+    await fetch(url1)
+    .then(response => {
+      if (!response.ok) {
+        Alert.alert('Error', response.status.toString());
+        throw Error('Error ' + response.status);}
+      return response.json();})
+    .then(user => {
+      this.setState({user});})
+    .catch(error => {
+      console.error(error);
+    });
+
+    let url2 = config.settings.serverPath + '/api/book';
+    await fetch(url2)
+    .then((response) => {
+      if(!response.ok) {
+        Alert.alert('Error', response.status.toString());  
+        throw Error('Error ' + response.status);
+      }
+      return response.json()  
+    })
+    .then((books) => {  
+      this.setState({books});
+    })
+    .catch((error) => {
+      console.log(error)
+    });
+
+    let url3 = config.settings.serverPath + '/api/tradeDetails';
+    await fetch(url3)
+    .then((response) => {
+      if(!response.ok) {
+        Alert.alert('Error', response.status.toString());  
+        throw Error('Error ' + response.status);
+      }
+      return response.json()  
+    })
+    .then((tradeDetails) => {  
+      this.setState({tradeDetails});
+    })
+    .catch((error) => {
+      console.log(error)
+    });
+  }
+
+  filter(){
+    let filtered=[];
+    for(let i=0;i<this.state.books.length;i++){
+      if(this.state.books[i].userId==this.state.loginUserId){
+        var traded=false;
+        for(let j=0;j<this.state.tradeDetails.length;j++){
+          if(this.state.books[i].bookId==this.state.tradeDetails[j].bookId){
+            traded=true;
+            break;
+          }
+        }
+        if(traded==false){
+          filtered.push(this.state.books[i]);
+        }
+      }
+    }
+    return filtered;
   }
 
   render(){
@@ -43,13 +104,13 @@ export default class ProfileScreen extends Component<Props>{
       <View style={styles.container}>
         <AppHeader thisProps={this.props}></AppHeader>
           <MaterialCommunityIcons  style={styles.profilePic}
-            name={this.state.gender!=""?(this.state.gender=="Male"?'face':'face-woman'):''} 
+            name={this.state.user?(this.state.user.gender=="Male"?'face':'face-woman'):''} 
             size={50} 
-            color={this.state.gender!=""?(this.state.gender=="Male"?'#00BECC':'#EA3C53'):''}>
+            color={this.state.user?(this.state.user.gender=="Male"?'#00BECC':'#EA3C53'):''}>
           </MaterialCommunityIcons>
-          <Text style={styles.name} editable={false}>{this.state.name}</Text>
-          <Text style={styles.text}>{this.state.email}</Text>
-          <Text style={styles.text}>{this.state.phoneNumber}</Text>
+          <Text style={styles.name} editable={false}>{this.state.user?this.state.user.userName:null}</Text>
+          <Text style={styles.text}>{this.state.user?this.state.user.email:null}</Text>
+          <Text style={styles.text}>{this.state.user?this.state.user.phoneNumber:null}</Text>
           <View style={styles.logout}>
             <TouchableOpacity
               style={styles.logoutOutline}
@@ -63,7 +124,9 @@ export default class ProfileScreen extends Component<Props>{
               <Text style={styles.subheaderText}>Your Books</Text>
               <TouchableOpacity
                 onPress={()=>{
-                  this.props.navigation.navigate('AddBook')
+                  this.props.navigation.navigate('AddBook',{
+                    refresh:this._query,
+                  })
                 }}
               >
                 <MaterialIcons name={'add'} size={20} color={'#FAFAFA'}></MaterialIcons>
@@ -72,15 +135,19 @@ export default class ProfileScreen extends Component<Props>{
           </View>
           <FlatList
             style={styles.list}
-            data={testData}
+            data={this.filter()}
+            //extraData={this.filter()}
+            keyExtractor={item=>item.bookId}
             renderItem={({item})=>{
               return(
                 <BookContainer
-                  bookId={item.id}
-                  bookName={item.name}
+                  bookId={item.bookId}
+                  userId={item.userId}
+                  bookName={item.bookName}
                   fromScreen={'Profile'}
                   thisProps={this.props}
-              ></BookContainer>
+                  refresh={this._query}
+                ></BookContainer>
               )
             }}
           ></FlatList>
@@ -101,8 +168,7 @@ export default class ProfileScreen extends Component<Props>{
                 <TouchableOpacity
                   style={styles.popoutActionOutline}
                   onPress={()=>{
-                    /*logout*/
-                    this.props.navigation.dispatch(resetAction)
+                    this.props.navigation.navigate('Login',{},loginUserId.setUserId(null))
                   }}
                 >
                   <Text style={styles.popoutSubmitText}>Yes</Text>
