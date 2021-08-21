@@ -74,7 +74,6 @@ def retrieveAllUser():
     cursor = db.cursor()
     cursor.execute('SELECT * FROM user ORDER BY userId')
     rows = cursor.fetchall()
-    print(rows)
     db.close()
     rows_as_dict = []
     for row in rows:
@@ -130,7 +129,6 @@ def retrieveAllBook():
     cursor = db.cursor()
     cursor.execute('SELECT * FROM book ORDER BY bookId')
     rows = cursor.fetchall()
-    print(rows)
     db.close()
     rows_as_dict = []
     for row in rows:
@@ -231,12 +229,12 @@ def retrieveAllTrade():
     cursor = db.cursor()
     cursor.execute('SELECT * FROM trade ORDER BY tradeId DESC')
     rows = cursor.fetchall()
-    print(rows)
     db.close()
     rows_as_dict = []
     for row in rows:
         row_as_dict = get_row_as_dict_trade(row)
         rows_as_dict.append(row_as_dict)
+    print(rows_as_dict)
     return jsonify(rows_as_dict), 200
 
 #used in TradeDetailsScreen
@@ -322,12 +320,12 @@ def retrieveAllTradeDetails():
     cursor = db.cursor()
     cursor.execute('SELECT * FROM tradeDetails ORDER BY tradeDetailsId')
     rows = cursor.fetchall()
-    print(rows)
     db.close()
     rows_as_dict = []
     for row in rows:
         row_as_dict = get_row_as_dict_tradeDetails(row)
         rows_as_dict.append(row_as_dict)
+    print(rows_as_dict)
     return jsonify(rows_as_dict), 200
 
 #used in StartTradeScreen
@@ -354,7 +352,7 @@ def addATradeDetails():
     return jsonify(response), 201
 
 #used in TradeDetailsScreen
-@app.route('/api/tradeDetails', methods=['DELETE'])
+@app.route('/api/tradeDetails/<int:tradeDetailsId>', methods=['DELETE'])
 def deleteATradeDetails(tradeDetailsId):
     db = sqlite3.connect(DB)
     cursor = db.cursor()
@@ -375,7 +373,6 @@ def retrieveAllRate():
     cursor = db.cursor()
     cursor.execute('SELECT * FROM rate ORDER BY rateId')
     rows = cursor.fetchall()
-    print(rows)
     db.close()
     rows_as_dict = []
     for row in rows:

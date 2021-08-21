@@ -34,8 +34,7 @@ export default class ProfileScreen extends Component<Props>{
   }
 
   async _query() {
-    let url1 = config.settings.serverPath + '/api/user/' + this.state.loginUserId;
-    await fetch(url1)
+    fetch(config.settings.serverPath+'/api/user/'+this.state.loginUserId)
     .then(response => {
       if (!response.ok) {
         Alert.alert('Error', response.status.toString());
@@ -47,8 +46,7 @@ export default class ProfileScreen extends Component<Props>{
       console.error(error);
     });
 
-    let url2 = config.settings.serverPath + '/api/book';
-    await fetch(url2)
+    fetch(config.settings.serverPath+'/api/book')
     .then((response) => {
       if(!response.ok) {
         Alert.alert('Error', response.status.toString());  
@@ -63,8 +61,7 @@ export default class ProfileScreen extends Component<Props>{
       console.log(error)
     });
 
-    let url3 = config.settings.serverPath + '/api/tradeDetails';
-    await fetch(url3)
+    fetch(config.settings.serverPath+'/api/tradeDetails')
     .then((response) => {
       if(!response.ok) {
         Alert.alert('Error', response.status.toString());  

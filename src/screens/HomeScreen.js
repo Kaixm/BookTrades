@@ -32,8 +32,7 @@ export default class HomeScreen extends Component<Props> {
   }
 
   async _query() {
-    let url1 = config.settings.serverPath + '/api/book';
-    await fetch(url1)
+    await fetch(config.settings.serverPath+'/api/book',{method: 'GET'})
     .then((response) => {
       if(!response.ok) {
         Alert.alert('Error', response.status.toString());  
@@ -41,15 +40,14 @@ export default class HomeScreen extends Component<Props> {
       }
       return response.json()  
     })
-    .then((books) => {  
+    .then((books) => {
       this.setState({books});
     })
     .catch((error) => {
       console.log(error)
     });
     
-    let url2 = config.settings.serverPath + '/api/tradeDetails';
-    await fetch(url2)
+    await fetch(config.settings.serverPath+'/api/tradeDetails',{method: 'GET'})
     .then((response) => {
       if(!response.ok) {
         Alert.alert('Error', response.status.toString());  

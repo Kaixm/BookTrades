@@ -1,6 +1,5 @@
 import React,{Component} from "react";
 import { Text, StyleSheet, View, TouchableOpacity, TextInput, Modal } from "react-native";
-import { StackActions,NavigationActions } from "react-navigation";
 
 //import icons
 import Feather from 'react-native-vector-icons/Feather';
@@ -28,9 +27,8 @@ export default class LoginScreen extends Component<Props>{
     this._query();
   }
 
-  _query() {
-    let url = config.settings.serverPath + '/api/user';
-    fetch(url)
+  async _query() {
+    await fetch(config.settings.serverPath + '/api/user',{method:'GET'})
     .then((response) => {
       if(!response.ok) {
         Alert.alert('Error', response.status.toString());  

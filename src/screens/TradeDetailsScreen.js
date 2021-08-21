@@ -54,8 +54,7 @@ export default class TradeDetailsScreen extends Component<Props>{
   }
 
   async _query() {
-    let url1 = config.settings.serverPath + '/api/book';
-    await fetch(url1)
+    await fetch(config.settings.serverPath+'/api/book',{method:'GET'})
     .then((response) => {
       if(!response.ok) {
         Alert.alert('Error', response.status.toString());  
@@ -70,8 +69,7 @@ export default class TradeDetailsScreen extends Component<Props>{
       console.log(error)
     });
 
-    let url2 = config.settings.serverPath + '/api/tradeDetails';
-    await fetch(url2)
+    await fetch(config.settings.serverPath+'/api/tradeDetails',{method:'GET'})
     .then((response) => {
       if(!response.ok) {
         Alert.alert('Error', response.status.toString());  
@@ -88,8 +86,7 @@ export default class TradeDetailsScreen extends Component<Props>{
   }
 
   async _delete() {
-    let url1 = config.settings.serverPath + '/api/trade/' + this.state.tradeId;
-    await fetch(url1, { 
+    await fetch(config.settings.serverPath+'/api/trade/'+this.state.tradeId, { 
       method: 'DELETE',
       headers: {
         Accept: 'application/json',
@@ -117,7 +114,7 @@ export default class TradeDetailsScreen extends Component<Props>{
 
     for(let i=0;i<this.state.tradeDetails.length;i++){
       if(this.state.tradeDetails[i].tradeId==this.state.tradeId){
-        await fetch(config.settings.serverPath + '/api/tradeDetails/' + this.state.tradeDetails[i].tradeDetailsId, { 
+        await fetch(config.settings.serverPath+'/api/tradeDetails/'+this.state.tradeDetails[i].tradeDetailsId, { 
           method: 'DELETE',
           headers: {
             Accept: 'application/json',
@@ -217,7 +214,6 @@ export default class TradeDetailsScreen extends Component<Props>{
           }}
         ></SectionList>
         {
-          console.log(this.state.loginUserId+" - "+this.state.user1Id),
           this.state.loginUserId==this.state.user1Id
           ?(
             this.state.status=='Done'

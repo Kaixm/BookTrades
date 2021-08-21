@@ -68,9 +68,8 @@ export default class StartTradeScreen extends Component<Props>{
     });
   }
 
-  _insert() {
-    let url1 = config.settings.serverPath + '/api/trade';
-    fetch(url1, {
+  async _insert() {
+    await fetch(config.settings.serverPath + '/api/trade', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -79,7 +78,7 @@ export default class StartTradeScreen extends Component<Props>{
       body: JSON.stringify({
         user1Id: this.state.loginUserId,
         user2Id: this.state.userId,
-        date: (new Date().getDate()+1)+"/"+(new Date().getMonth()+1)+"/"+(new Date().getFullYear())
+        date: (new Date().getDate())+"/"+(new Date().getMonth()+1)+"/"+(new Date().getFullYear())
       }),
     }).then((response) => {
       if(!response.ok) {
@@ -101,15 +100,14 @@ export default class StartTradeScreen extends Component<Props>{
       console.error(error);
     });
 
-    let url2 = config.settings.serverPath + '/api/tradeDetails';
-    fetch(url2, {
+    await fetch(config.settings.serverPath + '/api/tradeDetails', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        tradeId: this.state.tradeDetails[this.state.tradeDetails.length-1]+1,
+        tradeId: this.state.tradeDetails[this.state.tradeDetails.length-1].tradeId+1,
         userId: this.state.userId,
         bookId: this.state.bookId,
       }),
@@ -134,14 +132,14 @@ export default class StartTradeScreen extends Component<Props>{
     });
 
     for(let i=0;i<this.state.selected.length;i++){
-      fetch(config.settings.serverPath + '/api/tradeDetails', {
+      await fetch(config.settings.serverPath + '/api/tradeDetails', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          tradeId: this.state.tradeDetails[this.state.tradeDetails.length-1]+1,
+          tradeId: this.state.tradeDetails[this.state.tradeDetails.length-1].tradeId+1,
           userId: this.state.loginUserId,
           bookId: this.state.selected[i],
         }),
@@ -171,6 +169,7 @@ export default class StartTradeScreen extends Component<Props>{
     //
     this.props.navigation.goBack(),
     this.props.navigation.getParam('thisProps').navigation.goBack()
+    this.props.navigation.navigate('Trade')
     
   }
 

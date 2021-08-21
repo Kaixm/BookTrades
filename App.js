@@ -85,10 +85,10 @@ const HomeTab=createBottomTabNavigator(
         const { routeName } = navigation.state;
         let iconName;
         let screenName;
-        if (routeName==='TradeStack') {iconName = 'shopping-outline'};
-        if (routeName==='HomeStack') {iconName ='home-outline'};
-        if (routeName==='ProfileStack') {iconName = 'clipboard-account-outline'};
-        return <MaterialCommunityIcons name={iconName} size={25} color={tintColor}/>;
+        if (routeName==='TradeStack') {iconName = 'shopping-outline',screenName='Trade'};
+        if (routeName==='HomeStack') {iconName ='home-outline',screenName='Home'};
+        if (routeName==='ProfileStack') {iconName = 'clipboard-account-outline',screenName='Profile'};
+        return <MaterialCommunityIcons name={iconName} size={25} color={tintColor} onPress={()=>{navigation.navigate(screenName)}}/>;
       },
     }),
     tabBarOptions: {
