@@ -15,8 +15,8 @@ export default class LoginScreen extends Component<Props>{
     super(props);
     this.state = {
       users: [],
-      email:'chiajinwen@gmail.com',
-      password:'chiajinwen',
+      email:'jason@gmail.com',
+      password:'jason',
 
       loginFailBoxVisible:false,
     };

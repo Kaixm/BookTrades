@@ -33,6 +33,7 @@ export default class EditBookScreen extends Component<Props> {
       description:null,
     };
     this._query = this._query.bind(this);
+    this._update = this._update.bind(this);
   }
 
   componentDidMount() {

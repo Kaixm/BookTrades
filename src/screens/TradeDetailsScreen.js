@@ -25,7 +25,7 @@ export default class TradeDetailsScreen extends Component<Props>{
       status:this.props.navigation.getParam('status')?this.props.navigation.getParam('status'):null,
       statusColor:this.props.navigation.getParam('status')?(this.props.navigation.getParam('status')=="Done"?'#4CBB17':(this.props.navigation.getParam('status')=="Exchanging"?'#FCE205':'#B80F0A')):'#FAFAFA',
       user1Id:this.props.navigation.getParam('user1Id')?this.props.navigation.getParam('user1Id'):null,
-      user2Rate:this.props.navigation.getParam('user2Rate')?this.props.navigation.getParam('user2Rate'):0,
+      user2Rate:this.props.navigation.getParam('user2Rate'),
       userId:this.props.navigation.getParam('userId')?this.props.navigation.getParam('userId'):null,
       userName:this.props.navigation.getParam('userName')?this.props.navigation.getParam('userName'):null,
       gender:this.props.navigation.getParam('gender')?this.props.navigation.getParam('gender'):null,
@@ -34,6 +34,7 @@ export default class TradeDetailsScreen extends Component<Props>{
       tradeDetails:[],
 
       declineBoxVisible:false,
+      acceptBoxVisible:false,
       rateBoxVisible:false,
       cancelBoxVisible:false,
 
@@ -44,9 +45,13 @@ export default class TradeDetailsScreen extends Component<Props>{
       rateFrownColor:'#FAFAFA',
       rateMehColor:'#FAFAFA',
       rateSmileColor:'#FAFAFA',
+
+      rate:null,
     }
     this._query = this._query.bind(this);
     this._delete = this._delete.bind(this);
+    this._update = this._update.bind(this);
+    this._insert = this._insert.bind(this);
   }
 
   componentDidMount() {
@@ -145,6 +150,70 @@ export default class TradeDetailsScreen extends Component<Props>{
     this.props.navigation.goBack();
   }
 
+  async _update() {
+    await fetch(config.settings.serverPath + '/api/trade/' + this.state.tradeId, {
+      method: 'PUT',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        status:this.state.status,
+        user2Rate:this.state.user2Rate,
+      }),
+    })
+    .then((response) => {
+      if(!response.ok) {
+        Alert.alert('Error', response.status.toString());
+        throw Error('Error ' + response.status);
+      }
+      return response.json()
+    })
+    .then((responseJson) => {
+      if(responseJson.affected > 0) {
+        Alert.alert('Record Updated');
+      }
+      else {
+        Alert.alert('Error updating record');
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+  }
+
+  _insert() {
+    fetch(config.settings.serverPath + '/api/rate', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userId: this.state.userId,
+        rate:this.state.rate,
+      }),
+    }).then((response) => {
+      if(!response.ok) {
+        Alert.alert('Error', response.status.toString());
+        throw Error('Error ' + response.status);
+      }
+      return response.json()
+    }).then((responseJson) => {
+      if(responseJson.affected > 0) {
+        Alert.alert('Rate Saved');
+      }
+      else {
+        console.log('respond')
+        console.log(responseJson.affected);
+        Alert.alert('Error saving record');
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+  }
+
   filter(){
     let filtered=[];
     let giveData=[];
@@ -218,10 +287,8 @@ export default class TradeDetailsScreen extends Component<Props>{
           ?(
             this.state.status=='Done'
             ?(
-              console.log(this.state.user2Rate),
               this.state.user2Rate==0
               ?(
-                console.log('aa'),
                 <View style={styles.actions}>
                   <TouchableOpacity 
                     style={styles.singleGreen}
@@ -276,8 +343,11 @@ export default class TradeDetailsScreen extends Component<Props>{
                   <TouchableOpacity 
                     style={styles.green}
                     onPress={()=>{
-                      /*accept trade change state to Exchanging*/
-                      this.props.navigation.goBack()
+                      this.setState({
+                        status:'Exchanging',
+                        user2Rate:0,
+                        acceptBoxVisible:true,
+                      })
                     }}
                   >
                     <Text style={styles.actionText}>Accept</Text>
@@ -315,6 +385,35 @@ export default class TradeDetailsScreen extends Component<Props>{
           </View>
         </Modal>
 
+        {/*pop out box for accept trade request*/}
+        <Modal visible={this.state.acceptBoxVisible}>
+          <View>
+            <View style={styles.popoutBoxBackground}></View>
+            <View style={styles.popoutBox}>
+              <Text style={styles.popoutBoxTitle}>Sure to accept this trade request?</Text>
+              <View style={styles.popoutActions}>
+                <TouchableOpacity
+                  style={styles.popoutActionOutline}
+                  onPress={()=>{this.setState({acceptBoxVisible:false})}}
+                >
+                  <Text style={styles.popoutBackText}>No</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.popoutActionOutline}
+                  onPress={()=>{
+                    this._update()
+                    this.setState({acceptBoxVisible:false})
+                    this.props.navigation.getParam('refresh')();
+                    this.props.navigation.goBack();
+                  }}
+                >
+                  <Text style={styles.popoutSubmitText}>Yes</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+
         {/*pop out box for cancel trade*/}
         <Modal visible={this.state.cancelBoxVisible}>
           <View>
@@ -342,12 +441,12 @@ export default class TradeDetailsScreen extends Component<Props>{
           </View>
         </Modal>
 
-        {/*pop out box for rate and complete trade*/}
+        {/*pop out box for rate*/}
         <Modal visible={this.state.rateBoxVisible}>
           <View>
             <View style={styles.popoutBoxBackground}></View>
             <View style={styles.popoutBox}>
-              <Text style={styles.popoutBoxTitle}>Rate this user to complete!</Text>
+              <Text style={styles.popoutBoxTitle}>Rate this user!</Text>
               <View style={styles.rateIcons}>
                 
                 <TouchableOpacity
@@ -357,7 +456,10 @@ export default class TradeDetailsScreen extends Component<Props>{
                     rateSmileSelected:false,
                     rateFrownColor:'#B80F0A',
                     rateMehColor:'#FAFAFA',
-                    rateSmileColor:'#FAFAFA'
+                    rateSmileColor:'#FAFAFA',
+                    rate:0,
+                    status:'Done',
+                    user2Rate:this.state.user1Id==this.state.loginUserId?1:0,
                   })}}
                 >
                   <AntDesign name={'frowno'} size={40} color={this.state.rateFrownColor}></AntDesign>
@@ -369,7 +471,10 @@ export default class TradeDetailsScreen extends Component<Props>{
                     rateSmileSelected:false,
                     rateFrownColor:'#FAFAFA',
                     rateMehColor:'#FCE205',
-                    rateSmileColor:'#FAFAFA'
+                    rateSmileColor:'#FAFAFA',
+                    rate:1,
+                    status:'Done',
+                    user2Rate:this.state.user1Id==this.state.loginUserId?1:0,
                   })}}
                 >
                   <AntDesign name={'meh'} size={40} color={this.state.rateMehColor}></AntDesign>
@@ -381,7 +486,10 @@ export default class TradeDetailsScreen extends Component<Props>{
                     rateSmileSelected:true,
                     rateFrownColor:'#FAFAFA',
                     rateMehColor:'#FAFAFA',
-                    rateSmileColor:'#4CBB17'
+                    rateSmileColor:'#4CBB17',
+                    rate:2,
+                    status:'Done',
+                    user2Rate:this.state.user1Id==this.state.loginUserId?1:0,
                   })}}
                 >
                   <AntDesign name={'smileo'} size={40} color={this.state.rateSmileColor}></AntDesign>
@@ -397,9 +505,11 @@ export default class TradeDetailsScreen extends Component<Props>{
                 <TouchableOpacity
                   style={styles.popoutActionOutline}
                   onPress={()=>{
-                    /*submit rate*/
+                    this._update()
+                    this._insert()
                     this.setState({rateBoxVisible:false})
-                    this.props.navigation.goBack()
+                    this.props.navigation.getParam('refresh')();
+                    this.props.navigation.goBack();
                   }}
                 >
                   <Text style={styles.popoutSubmitText}>Submit</Text>

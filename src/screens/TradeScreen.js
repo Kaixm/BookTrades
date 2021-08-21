@@ -29,8 +29,7 @@ export default class TradeScreen extends Component<Props>{
   }
 
   async _query() {
-    let url1 = config.settings.serverPath + '/api/trade';
-    await fetch(url1)
+    await fetch(config.settings.serverPath + '/api/trade')
     .then((response) => {
       if(!response.ok) {
         Alert.alert('Error', response.status.toString());  
@@ -45,8 +44,7 @@ export default class TradeScreen extends Component<Props>{
       console.log(error)
     });
 
-    let url2 = config.settings.serverPath + '/api/user';
-    await fetch(url2)
+    await fetch(config.settings.serverPath + '/api/user')
     .then((response) => {
       if(!response.ok) {
         Alert.alert('Error', response.status.toString());  

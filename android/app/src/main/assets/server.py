@@ -378,6 +378,7 @@ def retrieveAllRate():
     for row in rows:
         row_as_dict = get_row_as_dict_rate(row)
         rows_as_dict.append(row_as_dict)
+    print(rows_as_dict)
     return jsonify(rows_as_dict), 200
 
 #used in TradeDetailsScreen
@@ -392,7 +393,7 @@ def addARate():
     db = sqlite3.connect(DB)
     cursor = db.cursor()
     cursor.execute('''
-        INSERT INTO trade(user1Id,rate)
+        INSERT INTO rate(userId,rate)
         VALUES(?,?)
     ''', new_rate)
     db.commit()
