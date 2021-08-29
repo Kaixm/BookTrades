@@ -11,24 +11,28 @@ export default class RegisterScreen extends Component<Props>{
   constructor(props){
     super(props);
     this.state={
-      name:'',
+      userName:'',
       email:'',
       phoneNumber:'',
       gender:'Male',
       password:''
     }
+    this._insert = this._insert.bind(this);
   }
 
-  _insert() {
-    let url = config.settings.serverPath + '/api/user';
-    fetch(url, {
+  componentDidMount(){
+    this._readRegisterInfo();
+  }
+
+  async _insert() {
+    fetch(config.settings.serverPath + '/api/user', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        name: this.state.name,
+        userName: this.state.userName,
         email: this.state.email,
         phoneNumber: this.state.phoneNumber,
         gender: this.state.gender,
@@ -45,21 +49,54 @@ export default class RegisterScreen extends Component<Props>{
         Alert.alert('Record Saved', 'Record for `' + this.state.name + '` has been saved');
       }
       else {
-        console.log('respond')
-        console.log(responseJson.affected);
         Alert.alert('Error saving record');
       }
-      this.props.navigation.getParam('refresh')();
-      this.props.navigation.goBack();
     })
     .catch((error) => {
       console.error(error);
     });
+    this.props.navigation.getParam('refresh')();
+    this.props.navigation.navigate('Login');
+  }
+
+  async _readRegisterInfo(){
+    newStates={}
+    try{
+      let keys=await AsyncStorage.multiGet(
+        ['userName','email','phoneNumber','gender','password'],
+        (err,stores)=>{
+          stores.map((result,i,store)=>{
+            let key=store[i][0];
+            let value=store[i][1];
+            {newStates[key]=value};
+          })
+          this.setState(newStates);
+        }
+      )
+    }
+    catch(error){
+      console.log(error);
+    }
+  }
+
+  async _saveRegisterInfo(key,value){
+    try{
+      await AsyncStorage.setItem(key,value);
+    }
+    catch(error){
+      console.log(error);
+    }
+  }
+
+  async _removeResisterInfo(){
+    let keys=['userName','email','phoneNumber','gender','password'];
+    AsyncStorage.multiRemove(keys,err=>{});
   }
 
   render(){
+    //disable the warning
+    console.disableYellowBox = true;
     return(
-      //template only, please remove when proceed to your code
       <View style={styles.container}>
       <AppHeader thisProps={this.props}></AppHeader>
       <View style={styles.form}>
@@ -69,27 +106,42 @@ export default class RegisterScreen extends Component<Props>{
           placeholder = "Name"
           placeholderTextColor = "#616161"
           autoCapitalize = "none"
-          onChangeText = {(name)=>this.setState({name:name})}
+          value={this.state.userName}
+          onChangeText = {(userName)=>{
+            this.setState({userName})
+            this._saveRegisterInfo('userName',userName)
+          }}
         />
         <TextInput style = {styles.input}
           underlineColorAndroid = "transparent"
           placeholder = "Email"
           placeholderTextColor = "#616161"
           autoCapitalize = "none"
-          onChangeText = {(email)=>this.setState({email:email})}
+          value={this.state.email}
+          onChangeText = {(email)=>{
+            this.setState({email})
+            this._saveRegisterInfo('email',email)
+          }}
         />
         <TextInput style = {styles.input}
           underlineColorAndroid = "transparent"
           placeholder = "Phone Number"
           placeholderTextColor = "#616161"
           autoCapitalize = "none"
-          onChangeText = {(phoneNumber)=>this.setState({phoneNumber:phoneNumber})}
+          value={this.state.phoneNumber}
+          onChangeText = {(phoneNumber)=>{
+            this.setState({phoneNumber})
+            this._saveRegisterInfo('phoneNumber',phoneNumber)
+          }}
         />
         <View style={{borderBottomWidth:2,borderBottomColor:"#AC94F4",margin:2,width:'80%'}}>
         <Picker
           selectedValue={this.state.gender}
           style={{color:"#FAFAFA",fontFamily:'Raleway-Regular',fontSize:18}}
-          onValueChange = {(gender)=>this.setState({gender:gender})}
+          onValueChange = {(itemValue,itemIndex)=>{
+            this.setState({gender:itemValue})
+            this._saveRegisterInfo('gender',itemValue)
+          }}
         >
           <Picker.Item label={'Male'} value={'Male'} />
           <Picker.Item label={'Female'} value={'Female'} />
@@ -100,66 +152,23 @@ export default class RegisterScreen extends Component<Props>{
           placeholder = "Password"
           placeholderTextColor = "#616161"
           autoCapitalize = "none"
-          onChangeText = {this.handlePassword}
+          value={this.state.password}
+          onChangeText = {(password)=>{
+            this.setState({password})
+            this._saveRegisterInfo('password',password)
+          }}
         />
         <TouchableOpacity 
         style={styles.register}
-        onPress={()=>{this._register()}}
+        onPress={()=>{
+          this._insert()
+          this._removeResisterInfo()
+        }}
         >
         <Text style={styles.registerText}>Register</Text></TouchableOpacity>
         </View>
       </View>
     );
-  }
-};
-
-_register(){
-  this.-createAccount();
-  this.-insert();
-}
-
-_createAccount = async () => {
-  const arrayData = [];
-
-  if (
-    this.state.name &&
-    this.state.email &&
-    this.state.phoneNumber &&
-    this.state.gender &&
-    this.state.password !== null
-  ) {
-    const data = {
-      name: this.state.name,
-      email: this.state.email,
-      phoneNumber: this.state.phoneNumber,
-      gender: this.state.gender,
-      password: this.state.password
-    };
-    arrayData.push(data);
-    try {
-      AsyncStorage.getItem("database_form").then(value => {
-        if (value !== null) {
-          const d = JSON.parse(value);
-          d.push(data);
-          AsyncStorage.setItem("database_form", JSON.stringify(d)).then(
-            () => {
-              this.props.navigation.navigate("Auth");
-            }
-          );
-        } else {
-          AsyncStorage.setItem(
-            "database_form",
-            JSON.stringify(arrayData)
-          ).then(() => {
-            this.props.navigation.navigate("Auth");
-          });
-        }
-      });
-    } catch (err) {
-      console.log(err);
-    }
-  } else {
-    alert("All informatino field");
   }
 };
 
