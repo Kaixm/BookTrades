@@ -1,8 +1,11 @@
 import React,{Component} from "react";
-import { Text, StyleSheet, View, TouchableOpacity, TextInput, ScrollView, Picker } from "react-native";
+import { Text, StyleSheet, View, TouchableOpacity, TextInput, ScrollView, Picker, AsyncStorage } from "react-native";
 
 //import components
 import AppHeader from "../components/AppHeader";
+
+//server path
+let config=require('../../Config');
 
 export default class RegisterScreen extends Component<Props>{
   constructor(props){
@@ -14,6 +17,44 @@ export default class RegisterScreen extends Component<Props>{
       gender:'Male',
       password:''
     }
+  }
+
+  _insert() {
+    let url = config.settings.serverPath + '/api/user';
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: this.state.name,
+        email: this.state.email,
+        phoneNumber: this.state.phoneNumber,
+        gender: this.state.gender,
+        password: this.state.password,
+      }),
+    }).then((response) => {
+      if(!response.ok) {
+        Alert.alert('Error', response.status.toString());
+        throw Error('Error ' + response.status);
+      }
+      return response.json()
+    }).then((responseJson) => {
+      if(responseJson.affected > 0) {
+        Alert.alert('Record Saved', 'Record for `' + this.state.name + '` has been saved');
+      }
+      else {
+        console.log('respond')
+        console.log(responseJson.affected);
+        Alert.alert('Error saving record');
+      }
+      this.props.navigation.getParam('refresh')();
+      this.props.navigation.goBack();
+    })
+    .catch((error) => {
+      console.error(error);
+    });
   }
 
   render(){
@@ -63,12 +104,62 @@ export default class RegisterScreen extends Component<Props>{
         />
         <TouchableOpacity 
         style={styles.register}
-        onPress={()=>this.props.navigation.navigate('Login')}
+        onPress={()=>{this._register()}}
         >
         <Text style={styles.registerText}>Register</Text></TouchableOpacity>
         </View>
       </View>
     );
+  }
+};
+
+_register(){
+  this.-createAccount();
+  this.-insert();
+}
+
+_createAccount = async () => {
+  const arrayData = [];
+
+  if (
+    this.state.name &&
+    this.state.email &&
+    this.state.phoneNumber &&
+    this.state.gender &&
+    this.state.password !== null
+  ) {
+    const data = {
+      name: this.state.name,
+      email: this.state.email,
+      phoneNumber: this.state.phoneNumber,
+      gender: this.state.gender,
+      password: this.state.password
+    };
+    arrayData.push(data);
+    try {
+      AsyncStorage.getItem("database_form").then(value => {
+        if (value !== null) {
+          const d = JSON.parse(value);
+          d.push(data);
+          AsyncStorage.setItem("database_form", JSON.stringify(d)).then(
+            () => {
+              this.props.navigation.navigate("Auth");
+            }
+          );
+        } else {
+          AsyncStorage.setItem(
+            "database_form",
+            JSON.stringify(arrayData)
+          ).then(() => {
+            this.props.navigation.navigate("Auth");
+          });
+        }
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  } else {
+    alert("All informatino field");
   }
 };
 
