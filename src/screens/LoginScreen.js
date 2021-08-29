@@ -41,6 +41,7 @@ export default class LoginScreen extends Component<Props>{
     })
     .catch((error) => {
       console.log(error)
+      this._query()
     });
   }
 

@@ -34,8 +34,7 @@ export default class BookDetailsScreen extends Component<Props>{
   }
 
   async _query() {
-    let url1 = config.settings.serverPath + '/api/book/' + this.state.bookId;
-    await fetch(url1)
+    await fetch(config.settings.serverPath + '/api/book/' + this.state.bookId)
       .then(response => {
         if (!response.ok) {
           Alert.alert('Error', response.status.toString());
@@ -44,10 +43,11 @@ export default class BookDetailsScreen extends Component<Props>{
       .then(book => {
         this.setState({book});})
       .catch(error => {
-        console.error(error);});
+        console.error(error);
+        this._query()
+      });
 
-    let url2 = config.settings.serverPath + '/api/user/' + this.state.userId;
-    await fetch(url2)
+    await fetch(config.settings.serverPath + '/api/user/' + this.state.userId)
       .then(response => {
         if (!response.ok) {
           Alert.alert('Error', response.status.toString());
@@ -56,7 +56,9 @@ export default class BookDetailsScreen extends Component<Props>{
       .then(user => {
         this.setState({user});})
       .catch(error => {
-        console.error(error);});
+        console.error(error);
+        this._query()
+      });
   }
 
   async _delete() {

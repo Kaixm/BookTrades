@@ -234,7 +234,6 @@ def retrieveAllTrade():
     for row in rows:
         row_as_dict = get_row_as_dict_trade(row)
         rows_as_dict.append(row_as_dict)
-    print(rows_as_dict)
     return jsonify(rows_as_dict), 200
 
 #used in TradeDetailsScreen
@@ -325,7 +324,6 @@ def retrieveAllTradeDetails():
     for row in rows:
         row_as_dict = get_row_as_dict_tradeDetails(row)
         rows_as_dict.append(row_as_dict)
-    print(rows_as_dict)
     return jsonify(rows_as_dict), 200
 
 #used in StartTradeScreen
@@ -378,7 +376,6 @@ def retrieveAllRate():
     for row in rows:
         row_as_dict = get_row_as_dict_rate(row)
         rows_as_dict.append(row_as_dict)
-    print(rows_as_dict)
     return jsonify(rows_as_dict), 200
 
 #used in TradeDetailsScreen

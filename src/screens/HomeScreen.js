@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Text, StyleSheet, View, ScrollView, TextInput, Picker, TouchableOpacity, FlatList, TouchableHighlight} from 'react-native';
+import {Text, StyleSheet, View, ScrollView, TextInput, Picker, TouchableOpacity, FlatList, TouchableHighlight, Alert} from 'react-native';
 import {StackActions, NavigationActions} from 'react-navigation';
 
 //import icons
@@ -22,7 +22,7 @@ export default class HomeScreen extends Component<Props> {
       loginUserId:loginUserId.getUserId(),
       books:[],
       tradeDetails:[],
-      display:[]
+      display:[],
     }
     this._query = this._query.bind(this);
   }
@@ -45,6 +45,7 @@ export default class HomeScreen extends Component<Props> {
     })
     .catch((error) => {
       console.log(error)
+      this._query()
     });
     
     await fetch(config.settings.serverPath+'/api/tradeDetails',{method: 'GET'})
@@ -60,6 +61,7 @@ export default class HomeScreen extends Component<Props> {
     })
     .catch((error) => {
       console.log(error)
+      this._query()
     });
   }
 

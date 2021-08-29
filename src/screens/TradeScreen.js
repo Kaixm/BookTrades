@@ -42,6 +42,7 @@ export default class TradeScreen extends Component<Props>{
     })
     .catch((error) => {
       console.log(error)
+      this._query()
     });
 
     await fetch(config.settings.serverPath + '/api/user')
@@ -57,6 +58,7 @@ export default class TradeScreen extends Component<Props>{
     })
     .catch((error) => {
       console.log(error)
+      this._query()
     });
   }
 

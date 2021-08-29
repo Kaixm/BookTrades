@@ -34,7 +34,7 @@ export default class ProfileScreen extends Component<Props>{
   }
 
   async _query() {
-    fetch(config.settings.serverPath+'/api/user/'+this.state.loginUserId)
+    await fetch(config.settings.serverPath+'/api/user/'+this.state.loginUserId)
     .then(response => {
       if (!response.ok) {
         Alert.alert('Error', response.status.toString());
@@ -44,9 +44,10 @@ export default class ProfileScreen extends Component<Props>{
       this.setState({user});})
     .catch(error => {
       console.error(error);
+      this._query()
     });
 
-    fetch(config.settings.serverPath+'/api/book')
+    await fetch(config.settings.serverPath+'/api/book')
     .then((response) => {
       if(!response.ok) {
         Alert.alert('Error', response.status.toString());  
@@ -59,9 +60,10 @@ export default class ProfileScreen extends Component<Props>{
     })
     .catch((error) => {
       console.log(error)
+      this._query()
     });
 
-    fetch(config.settings.serverPath+'/api/tradeDetails')
+    await fetch(config.settings.serverPath+'/api/tradeDetails')
     .then((response) => {
       if(!response.ok) {
         Alert.alert('Error', response.status.toString());  
@@ -74,6 +76,7 @@ export default class ProfileScreen extends Component<Props>{
     })
     .catch((error) => {
       console.log(error)
+      this._query()
     });
   }
 

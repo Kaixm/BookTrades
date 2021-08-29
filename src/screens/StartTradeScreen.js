@@ -1,6 +1,10 @@
 import React,{Component} from "react";
 import { Text, StyleSheet, View, ScrollView, FlatList, TouchableHighlight, TouchableOpacity,Alert } from "react-native";
 
+import TradeScreen from "./TradeScreen";
+import HomeScreen from "./HomeScreen";
+import ProfileScreen from "./ProfileScreen";
+
 //import icons
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
@@ -49,6 +53,7 @@ export default class StartTradeScreen extends Component<Props>{
     })
     .catch((error) => {
       console.log(error)
+      this._query()
     });
 
     let url2 = config.settings.serverPath + '/api/tradeDetails';
@@ -65,6 +70,7 @@ export default class StartTradeScreen extends Component<Props>{
     })
     .catch((error) => {
       console.log(error)
+      this._query()
     });
   }
 
@@ -169,7 +175,6 @@ export default class StartTradeScreen extends Component<Props>{
     //
     this.props.navigation.goBack(),
     this.props.navigation.getParam('thisProps').navigation.goBack()
-    this.props.navigation.navigate('Trade')
     
   }
 

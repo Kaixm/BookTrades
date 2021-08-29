@@ -72,6 +72,7 @@ export default class TradeDetailsScreen extends Component<Props>{
     })
     .catch((error) => {
       console.log(error)
+      this._query()
     });
 
     await fetch(config.settings.serverPath+'/api/tradeDetails',{method:'GET'})
@@ -87,6 +88,7 @@ export default class TradeDetailsScreen extends Component<Props>{
     })
     .catch((error) => {
       console.log(error)
+      this._query()
     });
   }
 

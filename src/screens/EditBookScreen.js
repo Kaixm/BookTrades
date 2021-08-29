@@ -60,6 +60,7 @@ export default class EditBookScreen extends Component<Props> {
       })
       .catch(error => {
         console.error(error);
+        this._query()
       });
   }
 

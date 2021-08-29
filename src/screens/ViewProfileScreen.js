@@ -22,18 +22,15 @@ export default class ViewProfileScreen extends Component<Props>{
 
       logoutBoxVisible:false,
     }
-    this._queryUser = this._queryUser.bind(this);
-    this._queryRate = this._queryRate.bind(this);
+    this._query = this._query.bind(this);
   }
 
   componentDidMount() {
-    this._queryUser();
-    this._queryRate();
+    this._query();
   }
 
-  _queryUser() {
-    let url = config.settings.serverPath + '/api/user/' + this.state.userId;
-    fetch(url)
+  async _query() {
+      await fetch(config.settings.serverPath + '/api/user/' + this.state.userId)
       .then(response => {
         if (!response.ok) {
           Alert.alert('Error', response.status.toString());
@@ -42,25 +39,25 @@ export default class ViewProfileScreen extends Component<Props>{
       .then(user => {
         this.setState({user});})
       .catch(error => {
-        console.error(error);});
-  }
+        console.error(error);
+        this._query()
+      });
 
-  _queryRate() {
-    let url = config.settings.serverPath + '/api/rate';
-    fetch(url)
-    .then((response) => {
-      if(!response.ok) {
-        Alert.alert('Error', response.status.toString());  
-        throw Error('Error ' + response.status);
-      }
-      return response.json()  
-    })
-    .then((rates) => {  
-      this.setState({rates});
-    })
-    .catch((error) => {
-      console.log(error)
-    });
+      await fetch(config.settings.serverPath + '/api/rate')
+      .then((response) => {
+        if(!response.ok) {
+          Alert.alert('Error', response.status.toString());  
+          throw Error('Error ' + response.status);
+        }
+        return response.json()  
+      })
+      .then((rates) => {  
+        this.setState({rates});
+      })
+      .catch((error) => {
+        console.log(error)
+        this._query()
+      });
   }
 
   render(){
