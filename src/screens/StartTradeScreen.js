@@ -29,6 +29,8 @@ export default class StartTradeScreen extends Component<Props>{
 
       selected:[],
       selectedNumber:0,
+
+      display:[]
     }
     this._query = this._query.bind(this);
     this._insert = this._insert.bind(this);
@@ -72,6 +74,7 @@ export default class StartTradeScreen extends Component<Props>{
       console.log(error)
       this._query()
     });
+    this.filter();
   }
 
   async _insert() {
@@ -194,7 +197,7 @@ export default class StartTradeScreen extends Component<Props>{
         }
       }
     }
-    return filtered;
+    this.setState({display:filtered})
   }
 
   render(){
@@ -204,7 +207,7 @@ export default class StartTradeScreen extends Component<Props>{
         <Text style={styles.title}>Select book(s) to give!</Text>
         <FlatList
           style={styles.list}
-          data={this.filter()}
+          data={this.state.display}
           keyExtractor={item=>item.id}
           renderItem={({item})=>{
             return(
