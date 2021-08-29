@@ -22,7 +22,6 @@ export default class HomeScreen extends Component<Props> {
       loginUserId:loginUserId.getUserId(),
       books:[],
       tradeDetails:[],
-      display:[],
       search: '',
       selectedGenre: 'All',
       selectedLanguage: 'All',
@@ -66,6 +65,8 @@ export default class HomeScreen extends Component<Props> {
       console.log(error)
       this._query()
     });
+
+
   }
 
   filter(){
