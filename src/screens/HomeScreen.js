@@ -23,6 +23,9 @@ export default class HomeScreen extends Component<Props> {
       books:[],
       tradeDetails:[],
       display:[],
+      search: '',
+      selectedGenre: 'All',
+      selectedLanguage: 'All',
     }
     this._query = this._query.bind(this);
   }
@@ -81,6 +84,37 @@ export default class HomeScreen extends Component<Props> {
         }
       }
     }
+
+    if(this.state.search != ''){
+      let searchResults = [];
+      for(let i = 0; i < filtered.length;  i++){
+        if(filtered[i].bookName.toLowerCase().includes(this.state.search.toLowerCase().trim())){
+          searchResults.push(filtered[i]);
+        }
+      }
+      filtered = searchResults;
+    }
+
+    if(this.state.selectedGenre != 'All'){
+      let filterResults = [];
+      for(let i = 0; i < filtered.length;  i++){
+        if(filtered[i].genre == this.state.selectedGenre){
+          filterResults.push(filtered[i]);
+        }
+      }
+      filtered = filterResults;
+    }
+
+    if(this.state.selectedLanguage != 'All'){
+      let filterResults = [];
+      for(let i = 0; i < filtered.length;  i++){
+        if(filtered[i].language == this.state.selectedLanguage){
+          filterResults.push(filtered[i]);
+        }
+      }
+      filtered = filterResults;
+    }
+
     return filtered;
   }
 
@@ -95,13 +129,9 @@ export default class HomeScreen extends Component<Props> {
             style={styles.input}
             placeholder="Search by book name"
             placeholderTextColor="#828282"
+            onChangeText={(bookName) => this.setState({search: bookName})}
           />
-          <TouchableOpacity
-            style={styles.searchIcon}
-            onPress={()=>{
-              //search
-            }}
-          >
+          <TouchableOpacity style={styles.searchIcon}>
             <Feather name={'search'} size={30} color={'#FAFAFA'}></Feather>
           </TouchableOpacity>
         </View>
@@ -110,6 +140,8 @@ export default class HomeScreen extends Component<Props> {
               <Picker
                 style={styles.filter}
                 dropdownIconColor="#FAFAFA"
+                selectedValue={this.selectedGenre}
+                onValueChange={(itemValue, itemIndex) => this.setState({selectedGenre: itemValue})}
               >
                 <Picker.Item label="All Genre" value="All" />
                 <Picker.Item label="Fiction" value="Fiction" />
@@ -120,11 +152,14 @@ export default class HomeScreen extends Component<Props> {
             <Picker
               style={styles.filter}
               dropdownIconColor="#FAFAFA"
+              selectedValue={this.selectedLanguage}
+              onValueChange={(itemValue, itemIndex) => this.setState({selectedLanguage: itemValue})}
             >
               <Picker.Item label="All Languages" value="All" />
               <Picker.Item label="English" value="English" />
               <Picker.Item label="Chinese" value="Chinese" />
               <Picker.Item label="Malay" value="Malay" />
+              <Picker.Item label="Other" value="Other" />
             </Picker>
           </View>
         </View>
