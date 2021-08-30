@@ -131,7 +131,7 @@ export default class HomeScreen extends Component<Props> {
             style={styles.input}
             placeholder="Search by book name"
             placeholderTextColor="#828282"
-            onChangeText={(bookName) => this.setState({search: bookName})}
+            onChangeText={(bookName) => this.setState({search: bookName}, () => this.filter())}
           />
           <TouchableOpacity style={styles.searchIcon}>
             <Feather name={'search'} size={30} color={'#FAFAFA'}></Feather>
@@ -143,7 +143,7 @@ export default class HomeScreen extends Component<Props> {
                 style={styles.filter}
                 dropdownIconColor="#FAFAFA"
                 selectedValue={this.selectedGenre}
-                onValueChange={(itemValue, itemIndex) => this.setState({selectedGenre: itemValue})}
+                onValueChange={(itemValue, itemIndex) => this.setState({selectedGenre: itemValue}, () => this.filter())}
               >
                 <Picker.Item label="All Genre" value="All" />
                 <Picker.Item label="Fiction" value="Fiction" />
@@ -155,7 +155,7 @@ export default class HomeScreen extends Component<Props> {
               style={styles.filter}
               dropdownIconColor="#FAFAFA"
               selectedValue={this.selectedLanguage}
-              onValueChange={(itemValue, itemIndex) => this.setState({selectedLanguage: itemValue})}
+              onValueChange={(itemValue, itemIndex) => this.setState({selectedLanguage: itemValue}, () => this.filter())}
             >
               <Picker.Item label="All Languages" value="All" />
               <Picker.Item label="English" value="English" />
