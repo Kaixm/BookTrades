@@ -103,6 +103,7 @@ export default class ProfileScreen extends Component<Props>{
   }
 
   render(){
+    console.log(this.state.display)
     return(
       <View style={styles.container}>
         <AppHeader thisProps={this.props}></AppHeader>

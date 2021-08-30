@@ -151,7 +151,8 @@ export default class BookDetailsScreen extends Component<Props>{
                     bookId:this.state.bookId,
                     userId:this.state.userId,
                     thisProps:this.props,
-                    refreshHome:this.props.navigation.getParam('refresh')
+                    refresh:this._query,
+                    refreshHome:this.props.navigation.getParam('refresh')?this.props.navigation.getParam('refresh'):null
                   })
                 }}
               >
@@ -175,7 +176,7 @@ export default class BookDetailsScreen extends Component<Props>{
                   bookId:this.state.bookId,
                   thisProps:this.props,
                   refresh:this._query,
-                  refreshProfile:this.props.navigation.getParam('refresh')
+                  refreshProfile:this.props.navigation.getParam('refresh')?this.props.navigation.getParam('refresh'):null
                 })}}
               >
                 <Text style={styles.actionText}>Edit</Text>

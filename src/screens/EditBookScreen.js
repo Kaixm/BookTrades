@@ -31,6 +31,8 @@ export default class EditBookScreen extends Component<Props> {
       year:null,
       condition:null,
       description:null,
+
+      thisProps:this.props.navigation.getParam('thisProps')?this.props.navigation.getParam('thisProps'):null
     };
     this._query = this._query.bind(this);
     this._update = this._update.bind(this);
@@ -90,14 +92,10 @@ export default class EditBookScreen extends Component<Props> {
     })
     .then((responseJson) => {
       if(responseJson.affected > 0) {
-        Alert.alert('Record Updated', 'Record for `' + this.state.bookName + '` has been updated');
+        this.props.navigation.getParam('refresh')();
+        this.props.navigation.goBack();
+        this.props.navigation.getParam('refreshProfile')();
       }
-      else {
-        Alert.alert('Error updating record');
-      }
-      this.props.navigation.getParam('refresh')();
-      this.props.navigation.getParam('refreshProfile')();
-      this.props.navigation.goBack();
     })
     .catch((error) => {
       console.error(error);
@@ -107,7 +105,6 @@ export default class EditBookScreen extends Component<Props> {
   render() {
     //disable the warning
     console.disableYellowBox = true;
-    console.log(this.props.navigation.getParam('refreshProfile'));
     return (
       <View style={styles.container}>
       <AppHeader thisProps={this.props}></AppHeader>
