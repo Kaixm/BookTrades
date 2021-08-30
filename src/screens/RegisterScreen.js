@@ -56,7 +56,7 @@ export default class RegisterScreen extends Component<Props>{
       console.error(error);
     });
     this.props.navigation.getParam('refresh')();
-    this.props.navigation.navigate('Login');
+    this.props.navigation.goBack();
   }
 
   async _readRegisterInfo(){

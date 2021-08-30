@@ -25,7 +25,7 @@ export default class LoginScreen extends Component<Props>{
 
   componentDidMount() {
     this._query();
-    this._readRegisterInfo();
+    this._readLoginInfo();
   }
 
   async _query() {
@@ -46,7 +46,7 @@ export default class LoginScreen extends Component<Props>{
     });
   }
 
-  async _readRegisterInfo(){
+  async _readLoginInfo(){
     newStates={}
     try{
       let keys=await AsyncStorage.multiGet(
@@ -66,18 +66,13 @@ export default class LoginScreen extends Component<Props>{
     }
   }
 
-  async _saveRegisterInfo(key,value){
+  async _saveLoginInfo(key,value){
     try{
       await AsyncStorage.setItem(key,value);
     }
     catch(error){
       console.log(error);
     }
-  }
-
-  async _removeResisterInfo(){
-    let keys=['email','password'];
-    AsyncStorage.multiRemove(keys,err=>{});
   }
 
   render(){
@@ -94,7 +89,7 @@ export default class LoginScreen extends Component<Props>{
           value={this.state.email}
           onChangeText = {(email)=>{
             this.setState({email})
-            this._saveRegisterInfo('email',email)
+            this._saveLoginInfo('email',email)
           }}
           value={this.state.email}
         />
@@ -106,7 +101,7 @@ export default class LoginScreen extends Component<Props>{
           value={this.state.password}
           onChangeText = {(password)=>{
             this.setState({password})
-            this._saveRegisterInfo('password',password)
+            this._saveLoginInfo('password',password)
           }}
           value={this.state.password}
         />
