@@ -1,5 +1,5 @@
 import React,{Component} from "react";
-import { Text, StyleSheet, View, TouchableOpacity, TextInput, Modal } from "react-native";
+import { Text, StyleSheet, View, TouchableOpacity, TextInput, Modal, AsyncStorage } from "react-native";
 
 //import icons
 import Feather from 'react-native-vector-icons/Feather';
@@ -15,8 +15,8 @@ export default class LoginScreen extends Component<Props>{
     super(props);
     this.state = {
       users: [],
-      email:'jason@gmail.com',
-      password:'jason',
+      email:'',
+      password:'',
 
       loginFailBoxVisible:false,
     };
@@ -25,6 +25,7 @@ export default class LoginScreen extends Component<Props>{
 
   componentDidMount() {
     this._query();
+    this._readLoginInfo();
   }
 
   async _query() {
@@ -45,7 +46,38 @@ export default class LoginScreen extends Component<Props>{
     });
   }
 
+  async _readLoginInfo(){
+    newStates={}
+    try{
+      let keys=await AsyncStorage.multiGet(
+        ['email','password'],
+        (err,stores)=>{
+          stores.map((result,i,store)=>{
+            let key=store[i][0];
+            let value=store[i][1];
+            {newStates[key]=value};
+          })
+          this.setState(newStates);
+        }
+      )
+    }
+    catch(error){
+      console.log(error);
+    }
+  }
+
+  async _saveLoginInfo(key,value){
+    try{
+      await AsyncStorage.setItem(key,value);
+    }
+    catch(error){
+      console.log(error);
+    }
+  }
+
   render(){
+    //disable the warning
+    console.disableYellowBox = true;
     return(
       <View style={styles.container}>
         <Text style={styles.name}><Feather name={"book"} size={30} color={"#AC94F4"}></Feather>ookTrades</Text>  
@@ -54,7 +86,11 @@ export default class LoginScreen extends Component<Props>{
           placeholder = "Email"
           placeholderTextColor = "#616161"
           autoCapitalize = "none"
-          onChangeText = {(email)=>this.setState({email:email})}
+          value={this.state.email}
+          onChangeText = {(email)=>{
+            this.setState({email})
+            this._saveLoginInfo('email',email)
+          }}
           value={this.state.email}
         />
         <TextInput style = {styles.input}
@@ -62,7 +98,11 @@ export default class LoginScreen extends Component<Props>{
           placeholder = "Password"
           placeholderTextColor = "#616161"
           autoCapitalize = "none"
-          onChangeText = {(password)=>this.setState({password:password})}
+          value={this.state.password}
+          onChangeText = {(password)=>{
+            this.setState({password})
+            this._saveLoginInfo('password',password)
+          }}
           value={this.state.password}
         />
 
@@ -82,7 +122,9 @@ export default class LoginScreen extends Component<Props>{
         
         <TouchableOpacity 
           style={styles.register}
-          onPress={()=>this.props.navigation.navigate('Register')}
+          onPress={()=>this.props.navigation.navigate('Register',{
+            refresh:this._query
+          })}
         >
         <Text style={styles.registerText}>Register</Text></TouchableOpacity>
         

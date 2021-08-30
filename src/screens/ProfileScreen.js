@@ -25,6 +25,8 @@ export default class ProfileScreen extends Component<Props>{
       tradeDetails:[],
 
       logoutBoxVisible:false,
+
+      display:[]
     }
     this._query = this._query.bind(this);
   }
@@ -78,6 +80,7 @@ export default class ProfileScreen extends Component<Props>{
       console.log(error)
       this._query()
     });
+    this.filter()
   }
 
   filter(){
@@ -96,7 +99,7 @@ export default class ProfileScreen extends Component<Props>{
         }
       }
     }
-    return filtered;
+    this.setState({display:filtered})
   }
 
   render(){
@@ -135,8 +138,8 @@ export default class ProfileScreen extends Component<Props>{
           </View>
           <FlatList
             style={styles.list}
-            data={this.filter()}
-            //extraData={this.filter()}
+            data={this.state.display}
+            extraData={this.state.display}
             keyExtractor={item=>item.bookId}
             renderItem={({item})=>{
               return(

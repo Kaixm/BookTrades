@@ -19,7 +19,9 @@ export default class TradeScreen extends Component<Props>{
     this.state={
       loginUserId:loginUserId.getUserId(),
       trades:[],
-      users:[]
+      users:[],
+
+      display:[]
     }
     this._query = this._query.bind(this);
   }
@@ -60,6 +62,7 @@ export default class TradeScreen extends Component<Props>{
       console.log(error)
       this._query()
     });
+    this.filter()
   }
 
   filter(){
@@ -100,7 +103,7 @@ export default class TradeScreen extends Component<Props>{
         }
       }
     }
-    return filtered;
+    this.setState({display:filtered})
   }
   
   render(){
@@ -108,7 +111,8 @@ export default class TradeScreen extends Component<Props>{
       <View style={styles.container}>
         <AppHeader thisProps={this.props}></AppHeader>
         <FlatList
-          data={this.filter()}
+          data={this.state.display}
+          extraData={this.state.display}
           keyExtractor={item=>item.tradeId}
           renderItem={({item})=>{
             return(

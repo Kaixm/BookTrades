@@ -33,6 +33,8 @@ export default class TradeDetailsScreen extends Component<Props>{
       books:[],
       tradeDetails:[],
 
+      display:[],
+
       declineBoxVisible:false,
       acceptBoxVisible:false,
       rateBoxVisible:false,
@@ -90,6 +92,7 @@ export default class TradeDetailsScreen extends Component<Props>{
       console.log(error)
       this._query()
     });
+    this.filter()
   }
 
   async _delete() {
@@ -238,7 +241,7 @@ export default class TradeDetailsScreen extends Component<Props>{
     }
     filtered.push({title:'You Give',data:[...giveData]})
     filtered.push({title:'You Receive',data:[...receiveData]})
-    return filtered;
+    this.setState({display:filtered})
   }
 
   render(){
@@ -265,7 +268,8 @@ export default class TradeDetailsScreen extends Component<Props>{
         <Text style={[styles.text,{color:this.state.statusColor,fontFamily:'Raleway-Bold'}]}>{this.state.status}</Text>
         <SectionList
           style={styles.giveReceiveContainer}
-          sections={this.filter()}
+          sections={this.state.display}
+          extraData={this.state.display}
           keyExtractor={item=>item.tradeId}
           renderSectionHeader={({section:{title}})=>{
             return(
