@@ -161,7 +161,7 @@ export default class ProfileScreen extends Component<Props>{
             }}
           ></FlatList>
 
-        {/*pop out box for cancel trade*/}
+        {/*pop out box for logout*/}
         <Modal visible={this.state.logoutBoxVisible}>
           <View>
             <View style={styles.popoutBoxBackground}></View>

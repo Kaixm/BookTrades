@@ -184,7 +184,7 @@ export default class BookDetailsScreen extends Component<Props>{
           :null}
         </ScrollView>
 
-        {/*pop out box for cancel trade*/}
+        {/*pop out box for delete*/}
         <Modal visible={this.state.deleteBoxVisible}>
           <View>
             <View style={styles.popoutBoxBackground}></View>

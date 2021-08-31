@@ -114,11 +114,10 @@ export default class EditBookScreen extends Component<Props> {
                 <Text style={styles.label}>Book Name: </Text>
                 <TextInput 
                   style={styles.text} 
-                  editable={true} 
+                  editable={false} 
                   value={this.state.bookName} 
                   placeholder={'Book name'}
                   placeholderTextColor={'#828282'}
-                  editable={false}
                   onChangeText={(bookName) => { this.setState({ bookName:bookName })}}></TextInput>
             </View>
             <View style={styles.detail}>
