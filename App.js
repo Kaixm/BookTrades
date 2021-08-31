@@ -72,23 +72,23 @@ const LoginStack=createStackNavigator(
 
 const HomeTab=createBottomTabNavigator(
   {
-    TradeStack: TradeStack,
-    HomeStack: HomeStack,
-    ProfileStack: ProfileStack,
+    Trade: TradeStack,
+    Home: HomeStack,
+    Profile: ProfileStack,
   },
   {
-    initialRouteName:'HomeStack',
+    initialRouteName:'Home',
     backBehavior:'none',
-    order:['TradeStack','HomeStack','ProfileStack'],
+    order:['Trade','Home','Profile'],
     defaultNavigationOptions: ({ navigation }) => ({
       tabBarIcon: ({ focused, horizontal, tintColor }) => {
         const { routeName } = navigation.state;
         let iconName;
         let screenName;
-        if (routeName==='TradeStack') {iconName = 'shopping-outline',screenName='Trade'};
-        if (routeName==='HomeStack') {iconName ='home-outline',screenName='Home'};
-        if (routeName==='ProfileStack') {iconName = 'clipboard-account-outline',screenName='Profile'};
-        return <MaterialCommunityIcons name={iconName} size={25} color={tintColor} onPress={()=>{navigation.navigate(screenName)}}/>;
+        if (routeName==='Trade') {iconName = 'shopping-outline',screenName='Trade'};
+        if (routeName==='Home') {iconName ='home-outline',screenName='Home'};
+        if (routeName==='Profile') {iconName = 'clipboard-account-outline',screenName='Profile'};
+        return <MaterialCommunityIcons name={iconName} size={25} color={tintColor}/>;
       },
     }),
     tabBarOptions: {

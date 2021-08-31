@@ -30,10 +30,16 @@ export default class HomeScreen extends Component<Props> {
     }
     this._query = this._query.bind(this);
   }
-
+  
   componentDidMount() {
     this._query();
+    const { navigation } = this.props;
+    this.focusListener = navigation.addListener('didFocus', () => {
+      this._query()
+    });
   }
+
+  componentWillUnmount(){this.focusListener.remove()}
 
   async _query() {
     await fetch(config.settings.serverPath+'/api/book',{method: 'GET'})

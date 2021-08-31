@@ -91,19 +91,9 @@ export default class StartTradeScreen extends Component<Props>{
       }),
     }).then((response) => {
       if(!response.ok) {
-        Alert.alert('Error', response.status.toString());
         throw Error('Error ' + response.status);
       }
       return response.json()
-    }).then((responseJson) => {
-      if(responseJson.affected > 0) {
-        Alert.alert('Request sent');
-      }
-      else {
-        console.log('respond')
-        console.log(responseJson.affected);
-        Alert.alert('Error saving record');
-      }
     })
     .catch((error) => {
       console.error(error);
@@ -122,19 +112,9 @@ export default class StartTradeScreen extends Component<Props>{
       }),
     }).then((response) => {
       if(!response.ok) {
-        Alert.alert('Error', response.status.toString());
         throw Error('Error ' + response.status);
       }
       return response.json()
-    }).then((responseJson) => {
-      if(responseJson.affected > 0) {
-        Alert.alert('Request sent');
-      }
-      else {
-        console.log('respond')
-        console.log(responseJson.affected);
-        Alert.alert('Error saving record');
-      }
     })
     .catch((error) => {
       console.error(error);
@@ -154,31 +134,19 @@ export default class StartTradeScreen extends Component<Props>{
         }),
       }).then((response) => {
         if(!response.ok) {
-          Alert.alert('Error', response.status.toString());
           throw Error('Error ' + response.status);
         }
         return response.json()
-      }).then((responseJson) => {
-        if(responseJson.affected > 0) {
-          Alert.alert('Request sent');
-        }
-        else {
-          console.log('respond')
-          console.log(responseJson.affected);
-          Alert.alert('Error saving record');
-        }
       })
       .catch((error) => {
         console.error(error);
       });
     }
-    //figure out here
-    this.props.navigation.getParam('refresh')?this.props.navigation.getParam('refresh'):null;
-    this.props.navigation.getParam('refreshHome')?this.props.navigation.getParam('refreshHome'):null;
-    //
+    this.props.navigation.getParam('refresh')()
     this.props.navigation.goBack(),
+    this.props.navigation.getParam('refreshHome')()
     this.props.navigation.getParam('thisProps').navigation.goBack()
-    
+
   }
 
   filter(){

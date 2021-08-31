@@ -1,8 +1,5 @@
 import React, { Component } from 'react';
-import {StyleSheet, TextInput, Text, View, ScrollView, TouchableOpacity, Picker, Alert} from 'react-native';
-
-//import icons
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import {StyleSheet, TextInput, Text, View, ScrollView, TouchableOpacity, Picker, Alert, Modal} from 'react-native';
 
 //import components
 import AppHeader from "../components/AppHeader";
@@ -32,7 +29,10 @@ export default class EditBookScreen extends Component<Props> {
       condition:null,
       description:null,
 
-      thisProps:this.props.navigation.getParam('thisProps')?this.props.navigation.getParam('thisProps'):null
+      thisProps:this.props.navigation.getParam('thisProps')?this.props.navigation.getParam('thisProps'):null,
+
+      successBoxVisible:false,
+      failBoxVisible:false,
     };
     this._query = this._query.bind(this);
     this._update = this._update.bind(this);
@@ -85,7 +85,6 @@ export default class EditBookScreen extends Component<Props> {
     })
     .then((response) => {
       if(!response.ok) {
-        Alert.alert('Error', response.status.toString());
         throw Error('Error ' + response.status);
       }
       return response.json()
@@ -119,6 +118,7 @@ export default class EditBookScreen extends Component<Props> {
                   value={this.state.bookName} 
                   placeholder={'Book name'}
                   placeholderTextColor={'#828282'}
+                  editable={false}
                   onChangeText={(bookName) => { this.setState({ bookName:bookName })}}></TextInput>
             </View>
             <View style={styles.detail}>

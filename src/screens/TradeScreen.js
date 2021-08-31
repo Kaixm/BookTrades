@@ -1,5 +1,6 @@
 import React,{Component} from "react";
 import { Text, StyleSheet, View, ScrollView, FlatList, TouchableHighlight } from "react-native";
+import { withNavigation } from "react-navigation";
 
 //import icons
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -28,7 +29,13 @@ export default class TradeScreen extends Component<Props>{
 
   componentDidMount() {
     this._query();
+    const { navigation } = this.props;
+    this.focusListener = navigation.addListener('didFocus', () => {
+      this._query()
+    });
   }
+
+  componentWillUnmount(){this.focusListener.remove()}
 
   async _query() {
     await fetch(config.settings.serverPath + '/api/trade')

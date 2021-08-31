@@ -75,17 +75,15 @@ export default class BookDetailsScreen extends Component<Props>{
     })
     .then(response => {
       if (!response.ok) {
-        Alert.alert('Error', response.status.toString());
         throw Error('Error ' + response.status);
       }
       return response.json();
     })
     .then(responseJson => {
-      if (responseJson.affected == 0) {
-        Alert.alert('Error deleting record');
+      if (responseJson.affected > 0) {
+        this.props.navigation.getParam('refresh')();
+        this.props.navigation.goBack();
       }
-      this.props.navigation.getParam('refresh')();
-      this.props.navigation.goBack();
     })
     .catch(error => {
       console.error(error);

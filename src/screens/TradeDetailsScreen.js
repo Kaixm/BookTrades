@@ -108,15 +108,9 @@ export default class TradeDetailsScreen extends Component<Props>{
     })
     .then(response => {
       if (!response.ok) {
-        Alert.alert('Error', response.status.toString());
         throw Error('Error ' + response.status);
       }
       return response.json();
-    })
-    .then(responseJson => {
-      if (responseJson.affected == 0) {
-        Alert.alert('Error deleting record');
-      }
     })
     .catch(error => {
       console.error(error);
@@ -136,15 +130,9 @@ export default class TradeDetailsScreen extends Component<Props>{
         })
         .then(response => {
           if (!response.ok) {
-            Alert.alert('Error', response.status.toString());
             throw Error('Error ' + response.status);
           }
           return response.json();
-        })
-        .then(responseJson => {
-          if (responseJson.affected == 0) {
-            Alert.alert('Error deleting record');
-          }
         })
         .catch(error => {
           console.error(error);
@@ -169,17 +157,14 @@ export default class TradeDetailsScreen extends Component<Props>{
     })
     .then((response) => {
       if(!response.ok) {
-        Alert.alert('Error', response.status.toString());
         throw Error('Error ' + response.status);
       }
       return response.json()
     })
     .then((responseJson) => {
       if(responseJson.affected > 0) {
-        Alert.alert('Record Updated');
-      }
-      else {
-        Alert.alert('Error updating record');
+        this.props.navigation.getParam('refresh')();
+        this.props.navigation.goBack();
       }
     })
     .catch((error) => {
@@ -200,18 +185,13 @@ export default class TradeDetailsScreen extends Component<Props>{
       }),
     }).then((response) => {
       if(!response.ok) {
-        Alert.alert('Error', response.status.toString());
         throw Error('Error ' + response.status);
       }
       return response.json()
     }).then((responseJson) => {
       if(responseJson.affected > 0) {
-        Alert.alert('Rate Saved');
-      }
-      else {
-        console.log('respond')
-        console.log(responseJson.affected);
-        Alert.alert('Error saving record');
+        this.props.navigation.getParam('refresh')();
+        this.props.navigation.goBack();
       }
     })
     .catch((error) => {

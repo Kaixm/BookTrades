@@ -51,21 +51,14 @@ export default class AddBookScreen extends Component<Props> {
       }),
     }).then((response) => {
       if(!response.ok) {
-        Alert.alert('Error', response.status.toString());
         throw Error('Error ' + response.status);
       }
       return response.json()
     }).then((responseJson) => {
       if(responseJson.affected > 0) {
-        Alert.alert('Record Saved', 'Record for `' + this.state.bookName + '` has been saved');
+        this.props.navigation.getParam('refresh')();
+        this.props.navigation.goBack();
       }
-      else {
-        console.log('respond')
-        console.log(responseJson.affected);
-        Alert.alert('Error saving record');
-      }
-      this.props.navigation.getParam('refresh')();
-      this.props.navigation.goBack();
     })
     .catch((error) => {
       console.error(error);

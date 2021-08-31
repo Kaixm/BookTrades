@@ -40,23 +40,18 @@ export default class RegisterScreen extends Component<Props>{
       }),
     }).then((response) => {
       if(!response.ok) {
-        Alert.alert('Error', response.status.toString());
         throw Error('Error ' + response.status);
       }
       return response.json()
     }).then((responseJson) => {
       if(responseJson.affected > 0) {
-        Alert.alert('Record Saved', 'Record for `' + this.state.name + '` has been saved');
-      }
-      else {
-        Alert.alert('Error saving record');
+        this.props.navigation.getParam('refresh')();
+        this.props.navigation.goBack();
       }
     })
     .catch((error) => {
       console.error(error);
     });
-    this.props.navigation.getParam('refresh')();
-    this.props.navigation.goBack();
   }
 
   async _readRegisterInfo(){

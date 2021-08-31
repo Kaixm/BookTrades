@@ -33,7 +33,13 @@ export default class ProfileScreen extends Component<Props>{
 
   componentDidMount() {
     this._query();
+    const { navigation } = this.props;
+    this.focusListener = navigation.addListener('didFocus', () => {
+      this._query()
+    });
   }
+
+  componentWillUnmount(){this.focusListener.remove()}
 
   async _query() {
     await fetch(config.settings.serverPath+'/api/user/'+this.state.loginUserId)
@@ -103,7 +109,6 @@ export default class ProfileScreen extends Component<Props>{
   }
 
   render(){
-    console.log(this.state.display)
     return(
       <View style={styles.container}>
         <AppHeader thisProps={this.props}></AppHeader>
